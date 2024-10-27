@@ -1,11 +1,18 @@
 
 import './App.css'
-import MyDashboard from './components/Dashboard'
+
+
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import SignInUpForm from './components/SignInUpForm';
+import MyDashboard from './components/Dashboard';
+
 function App() {
 
   return (
     <>
-     <MyDashboard/>
+     
+      <SignInUpForm/>
+      {/* <MyDashboard/>  */}
     </>
   )
 }

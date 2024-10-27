@@ -10,6 +10,10 @@ import SchoolIcon from '@mui/icons-material/School';
 
 import InfoIcon from '@mui/icons-material/Info';
 import ClassIcon from '@mui/icons-material/Class';
+import MyItemCard from './MyItemCard';
+import MyCartItemCard from './MyCartItemCard';
+
+
 const NAVIGATION = [
   {
     segment: 'dashboard',
@@ -64,6 +68,7 @@ const demoTheme = createTheme({
 
 function DemoPageContent({ pathname }) {
   return (
+    
     <Box
       sx={{
         py: 4,
@@ -120,6 +125,8 @@ function MyDashboard(props) {
 
   return (
     // preview-start
+
+    
     <AppProvider
       navigation={NAVIGATION}
       branding={{
@@ -131,8 +138,19 @@ function MyDashboard(props) {
       window={demoWindow}
     >
       <DashboardLayout>
-        <DemoPageContent pathname={pathname} />
-       
+        <DemoPageContent pathname={pathname}/>
+        <MyItemCard 
+          itemName="Ice Coffee" 
+          itemImage="https://png.pngtree.com/png-clipart/20231020/original/pngtree-iced-coffee-png-png-image_13381335.png"
+          itemDescription="Roasted coffee beans, with ground beans providing flavor and aroma, water extracting flavors, and optional add-ins like milk or cream, sugar or sweeteners, and spices like cinnamon, vanilla, or chocolate syrups."
+          itemPrice="45.00"
+        />
+        <MyCartItemCard
+         itemName="Ice Coffee" 
+         itemImage="https://png.pngtree.com/png-clipart/20231020/original/pngtree-iced-coffee-png-png-image_13381335.png"
+         itemDescription="Roasted coffee beans, with ground beans providing flavor and aroma, water extracting flavors, and optional add-ins like milk or cream, sugar or sweeteners, and spices like cinnamon, vanilla, or chocolate syrups."
+         itemPrice="45.00"/>
+        
       </DashboardLayout>
     </AppProvider>
     // preview-end
