@@ -1,20 +1,18 @@
 
-import './App.css'
-
-
+import './App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import SignInUpForm from './components/SignInUpForm';
-import MyDashboard from './components/Dashboard';
+
+const baseUrl = import.meta.env.VITE_BASE_URL; 
 
 function App() {
+  console.log('VITE_BASE_URL:', baseUrl)
 
   return (
     <>
-     
       <SignInUpForm/>
-      {/* <MyDashboard/>  */}
     </>
-  )
+  );
 }
 
-export default App
+export default App;

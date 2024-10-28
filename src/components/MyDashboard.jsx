@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState , useEffect} from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -12,6 +13,11 @@ import InfoIcon from '@mui/icons-material/Info';
 import ClassIcon from '@mui/icons-material/Class';
 import MyItemCard from './MyItemCard';
 import MyCartItemCard from './MyCartItemCard';
+import axios from 'axios';
+
+
+
+
 
 
 const NAVIGATION = [
@@ -67,6 +73,8 @@ const demoTheme = createTheme({
 });
 
 function DemoPageContent({ pathname }) {
+  
+
   return (
     
     <Box
@@ -107,6 +115,8 @@ DemoPageContent.propTypes = {
   pathname: PropTypes.string.isRequired,
 };
 
+
+
 function MyDashboard(props) {
   const { window } = props;
 
@@ -119,6 +129,24 @@ function MyDashboard(props) {
       navigate: (path) => setPathname(String(path)),
     };
   }, [pathname]);
+
+  const [products, setProducts] = useState({
+    products: []
+  });
+  
+  
+  useEffect(() => {
+    axios.get('http://localhost:3306/products')
+      .then(res => {
+        const products = res.data;
+        setProducts(prevState => ({
+          ...prevState,
+          products: products
+        }));
+      })
+      .catch(error => console.error("Error fetching products:", error));
+  }, []); 
+  
 
   // Remove this const when copying and pasting into your project.
   const demoWindow = window !== undefined ? window() : undefined;
@@ -139,11 +167,17 @@ function MyDashboard(props) {
     >
       <DashboardLayout>
         <DemoPageContent pathname={pathname}/>
-        <MyItemCard 
+        {/* <MyItemCard 
           itemName="Ice Coffee" 
           itemImage="https://png.pngtree.com/png-clipart/20231020/original/pngtree-iced-coffee-png-png-image_13381335.png"
           itemDescription="Roasted coffee beans, with ground beans providing flavor and aroma, water extracting flavors, and optional add-ins like milk or cream, sugar or sweeteners, and spices like cinnamon, vanilla, or chocolate syrups."
           itemPrice="45.00"
+        /> */}
+        <MyItemCard 
+          itemName={products.productName}
+          itemImage={products.prodImage}
+          itemDescription={products.description}
+          itemPrice={products.price}
         />
         <MyCartItemCard
          itemName="Ice Coffee" 
