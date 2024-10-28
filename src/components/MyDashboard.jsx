@@ -12,24 +12,25 @@ import SchoolIcon from '@mui/icons-material/School';
 import InfoIcon from '@mui/icons-material/Info';
 import ClassIcon from '@mui/icons-material/Class';
 import MyItemCard from './MyItemCard';
-import MyCartItemCard from './MyCartItemCard';
 import axios from 'axios';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
 
 
 
+const baseUrl = import.meta.env.VITE_BASE_URL; 
 
 
 
 const NAVIGATION = [
   {
-    segment: 'dashboard',
-    title: 'Dashboard',
+    segment: 'Favorites',
+    title: 'Favorites',
     icon: <DashboardIcon />,
   },
   {
-    segment: 'Students',
-    title: 'Students',
-    icon: <SchoolIcon/>,
+    segment: 'Snacks',
+    title: 'Snacks',
+    icon: <FastfoodIcon/>,
   },
   {
     segment: 'classes',
@@ -72,49 +73,6 @@ const demoTheme = createTheme({
   },
 });
 
-function DemoPageContent({ pathname }) {
-  
-
-  return (
-    
-    <Box
-      sx={{
-        py: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-      }}
-    >
-    <Typography>
-    {pathname === '/dashboard' && <Typography>Welcome to the Dashboard</Typography>}
-      {pathname === '/Students' && (
-        <Box>
-          <Typography variant="h4">Students</Typography>
-          <Typography variant="body1">List of students or any other content related to students.</Typography>
-        </Box>
-        
-      )}
-
-        {pathname === '/classes/CSIT%20340' && (
-          <Box>
-            <Typography variant="h4">Class CSIT 340</Typography>
-              
-          </Box>
-        )}
-        {/* {pathname} */}
-    
-
-    
-      </Typography>
-    </Box>
-  );
-}
-
-DemoPageContent.propTypes = {
-  pathname: PropTypes.string.isRequired,
-};
-
 
 
 function MyDashboard(props) {
@@ -129,24 +87,68 @@ function MyDashboard(props) {
       navigate: (path) => setPathname(String(path)),
     };
   }, [pathname]);
+  
+  const [products, setProducts] = useState([]);
 
-  const [products, setProducts] = useState({
-    products: []
-  });
-  
-  
   useEffect(() => {
-    axios.get('http://localhost:3306/products')
-      .then(res => {
-        const products = res.data;
-        setProducts(prevState => ({
-          ...prevState,
-          products: products
-        }));
-      })
-      .catch(error => console.error("Error fetching products:", error));
-  }, []); 
+    async function fetchProducts() {
+      try {
+        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGRyaW5AZ21haWwuY29tIiwiaWF0IjoxNzMwMTM0ODIyLCJleHAiOjE3MzAyMjEyMjJ9.8HUB8CvR9koCJRyPPUhG1EZZUZUGk5_eyKKc-Xd1G1I";
+        const response = await axios.get(`${baseUrl}/user/products`, {
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          },
+        });
+        if (response.status === 200) {
+          setProducts(response.data.oblist); // Set the products state with the oblist
+        } else {
+          console.error('Error fetching products:', response.message); // Handle non-200 statuses
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    }
+    fetchProducts();
+  }, []);
+
   
+  
+function DemoPageContent({ pathname }) {
+
+  return (
+    
+    <Box
+      sx={{
+        py: 4,
+        display: 'flex',
+        flexWrap: 'wrap', 
+        gap: '40px',
+        
+      }}
+    >
+          {pathname === '/dashboard' && <Typography>Welcome to the Dashboard</Typography>}
+          {pathname === '/Snacks' && (
+            <>
+              {products.map(product => (
+                <MyItemCard 
+                  key={product.productId} 
+                  itemName={product.productName} 
+                  itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'} 
+                  itemDescription={product.description} 
+                  itemPrice={product.price} 
+                />
+              ))}
+            </>
+          )}
+
+    </Box>
+  );
+}
+
+DemoPageContent.propTypes = {
+  pathname: PropTypes.string.isRequired,
+};
+
 
   // Remove this const when copying and pasting into your project.
   const demoWindow = window !== undefined ? window() : undefined;
@@ -167,23 +169,8 @@ function MyDashboard(props) {
     >
       <DashboardLayout>
         <DemoPageContent pathname={pathname}/>
-        {/* <MyItemCard 
-          itemName="Ice Coffee" 
-          itemImage="https://png.pngtree.com/png-clipart/20231020/original/pngtree-iced-coffee-png-png-image_13381335.png"
-          itemDescription="Roasted coffee beans, with ground beans providing flavor and aroma, water extracting flavors, and optional add-ins like milk or cream, sugar or sweeteners, and spices like cinnamon, vanilla, or chocolate syrups."
-          itemPrice="45.00"
-        /> */}
-        <MyItemCard 
-          itemName={products.productName}
-          itemImage={products.prodImage}
-          itemDescription={products.description}
-          itemPrice={products.price}
-        />
-        <MyCartItemCard
-         itemName="Ice Coffee" 
-         itemImage="https://png.pngtree.com/png-clipart/20231020/original/pngtree-iced-coffee-png-png-image_13381335.png"
-         itemDescription="Roasted coffee beans, with ground beans providing flavor and aroma, water extracting flavors, and optional add-ins like milk or cream, sugar or sweeteners, and spices like cinnamon, vanilla, or chocolate syrups."
-         itemPrice="45.00"/>
+          
+       
         
       </DashboardLayout>
     </AppProvider>

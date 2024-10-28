@@ -15,11 +15,11 @@ function MyItemCard({ itemName , itemImage, itemPrice , itemDescription}) {
   return (
     <Card style={{ borderRadius:'4%', width: '30rem', backgroundColor: '#f5f5f5', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', maxHeight:'400px', maxWidth:'500px', minHeight:'300px', minWidth:'500px'}}>
       <CardContent>
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         <Grid item xs={6}>
            <img
               src={`${itemImage}?height=60&width=60`}
-              alt="Ice Coffee"
+              alt={itemName}
               style={{ width: '13rem', height: '11rem', objectFit: 'cover', borderRadius: '0.375rem' }}
             />
          </Grid>
