@@ -77,7 +77,6 @@ const demoTheme = createTheme({
 
 function MyDashboard(props) {
   const { window } = props;
-
   const [pathname, setPathname] = React.useState('/dashboard');
 
   const router = React.useMemo(() => {
@@ -93,7 +92,7 @@ function MyDashboard(props) {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGRyaW5AZ21haWwuY29tIiwiaWF0IjoxNzMwMTM0ODIyLCJleHAiOjE3MzAyMjEyMjJ9.8HUB8CvR9koCJRyPPUhG1EZZUZUGk5_eyKKc-Xd1G1I";
+        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGRyaW5AZ21haWwuY29tIiwiaWF0IjoxNzMwMTkxNjY2LCJleHAiOjE3MzAyNzgwNjZ9.LkLqHcSAF6kx0-_lN96Y-Kk2rgRK1J6s8JVeyxH6eCQ";
         const response = await axios.get(`${baseUrl}/user/products`, {
           headers: {
             Authorization: `Bearer ${token}`, 
@@ -109,7 +108,13 @@ function MyDashboard(props) {
       }
     }
     fetchProducts();
-  }, []);
+    const intervalId = setInterval(fetchProducts, 6000);
+
+    // Clear interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [pathname]);
+
+  
 
   
   
