@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './css/SignInUpForm.css'; 
 import axios from 'axios';
 
@@ -6,14 +6,20 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const SignInUpForm = () => {
   const [rightPanelActive, setRightPanelActive] = useState(false);
-  const [signUpData, setSignUpData] = useState({ email: '',username: '',  role: '', password: ''});
+  const [signUpData, setSignUpData] = useState({ email: '', username: '', role: '', password: '' });
   const [signInData, setSignInData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [token, setToken] = useState('');
+
+  // Retrieve token from localStorage on component mount
+  useEffect(() => {
+    const savedToken = JSON.parse(sessionStorage.getItem('token'));
+    if (savedToken) setToken(savedToken);
+  }, []);
 
   const handleSignUpClick = () => setRightPanelActive(true);
   const handleSignInClick = () => setRightPanelActive(false);
-
 
   const handleSignUpChange = (e) => {
     const { name, value } = e.target;
@@ -23,25 +29,20 @@ const SignInUpForm = () => {
   const handleSignInChange = (e) => {
     const { name, value } = e.target;
     setSignInData({ ...signInData, [name]: value });
-    
   };
 
   const handleSignUpSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const requestBody = {
-      email: signUpData.email,
-      username: signUpData.username,
-      role:signUpData.role,
-      password: signUpData.password
-    };
-    
-    console.log('This is Request body:', requestBody);
     try {
       const response = await axios.post(`${baseUrl}/auth/signup`, signUpData);
-      console.log(response.data);
-      console.log("You are all set");
+      console.log("Sign-Up successful:", response.data);
+
+      if (response.data.token) {
+        setToken(response.data.token);
+        sessionStorage.setItem('token', JSON.stringify(response.data.token));
+      }
     } catch (error) {
       setError('Sign Up failed. Please try again.');
       console.error(error);
@@ -53,39 +54,33 @@ const SignInUpForm = () => {
   const handleSignInSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(''); 
+    setError('');
 
-   
     const requestBody = {
-      email: signInData.email.trim().toLowerCase(), 
-      password: signInData.password
+      email: signInData.email.trim().toLowerCase(),
+      password: signInData.password,
     };
-    
-    console.log('This is Request body:', requestBody);
 
     try {
       const response = await axios.post(`${baseUrl}/auth/signin`, requestBody, {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
-      console.log('Response:', response.data);
-    
+      console.log('Sign-In successful:', response.data);
+
+      if (response.data.token) {
+        setToken(response.data.token);
+        sessionStorage.setItem('token', JSON.stringify(response.data.token));
+      }
     } catch (error) {
       if (error.response) {
         console.error('Error response:', error.response.data);
-        if (error.response.status === 401) {
-          setError('Sign In failed: Unauthorized. Please check your credentials.');
-          console.log(signInData.email)
-          console.log(signInData.password)
-        } else {
-          setError(`Sign In failed: ${error.response.data.message}`);
-        }
-      } else if (error.request) {
-        console.error('Error request:', error.request);
-        setError('Sign In failed: No response from the server.');
+        setError(error.response.status === 401 
+          ? 'Sign In failed: Unauthorized. Please check your credentials.' 
+          : `Sign In failed: ${error.response.data.message}`);
       } else {
-        console.error('Error message:', error.message);
+        console.error('Error:', error.message);
         setError('Sign In failed: Network error.');
       }
     } finally {
@@ -98,13 +93,12 @@ const SignInUpForm = () => {
       <div className="form-container sign-up-container">
         <form onSubmit={handleSignUpSubmit}>
           <h1>Create Account</h1>
-        
           <span>or use your email for registration</span>
           <input type="text" name="email" placeholder="Email" onChange={handleSignUpChange} required />
           <input type="text" name="username" placeholder="Username" onChange={handleSignUpChange} required />
           <input type="text" name="role" placeholder="Role" onChange={handleSignUpChange} required />
           <input type="password" name="password" placeholder="Password" onChange={handleSignUpChange} required />
-          <button type="submit"onClick={handleSignInClick} disabled={isLoading}>Sign Up</button>
+          <button type="submit" disabled={isLoading}>Sign Up</button>
           {error && <p className="error">{error}</p>}
         </form>
       </div>
@@ -117,7 +111,7 @@ const SignInUpForm = () => {
           <input type="email" name="email" placeholder="Email" onChange={handleSignInChange} required />
           <input type="password" name="password" placeholder="Password" onChange={handleSignInChange} required />
           <div className='marg'></div>
-          <button type="submit" disabled={isLoading} >Sign In</button>
+          <button type="submit" disabled={isLoading}>Sign In</button>
           {error && <p className="error">{error}</p>}
         </form>
       </div>

@@ -14,6 +14,8 @@ import ClassIcon from '@mui/icons-material/Class';
 import MyItemCard from './MyItemCard';
 import axios from 'axios';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
+import MyCartItemCard from './MyCartItemCard';
+
 
 
 
@@ -33,13 +35,13 @@ const NAVIGATION = [
     icon: <FastfoodIcon/>,
   },
   {
-    segment: 'classes',
-    title: 'Classes',
+    segment: 'Cart',
+    title: 'Cart',
     icon: <ClassIcon/>,
     children: [
       {
-        segment: 'CSIT 340',
-        title: 'CSIT 340',
+        segment: 'Cart1',
+        title: 'Cart1',
         icon: <SchoolIcon />,
       },
       {
@@ -78,6 +80,16 @@ const demoTheme = createTheme({
 function MyDashboard(props) {
   const { window } = props;
   const [pathname, setPathname] = React.useState('/dashboard');
+  const [token,setToken] = useState('');
+
+  useEffect(() => {  
+    const savedData = JSON.parse(sessionStorage.getItem('token'));
+    if (savedData) {
+      setToken(savedData);
+    } else {
+      console.log("No Data found");
+    }
+  }, []);
 
   const router = React.useMemo(() => {
     return {
@@ -88,14 +100,15 @@ function MyDashboard(props) {
   }, [pathname]);
   
   const [products, setProducts] = useState([]);
+ 
 
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGRyaW5AZ21haWwuY29tIiwiaWF0IjoxNzMwMTkxNjY2LCJleHAiOjE3MzAyNzgwNjZ9.LkLqHcSAF6kx0-_lN96Y-Kk2rgRK1J6s8JVeyxH6eCQ";
-        const response = await axios.get(`${baseUrl}/user/products`, {
+        const myToken = token;
+        const response = await axios.get(`${baseUrl}/user/product`, {
           headers: {
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${myToken}`, 
           },
         });
         if (response.status === 200) {
@@ -107,11 +120,31 @@ function MyDashboard(props) {
         console.error('Error fetching products:', error);
       }
     }
+   
     fetchProducts();
-    const intervalId = setInterval(fetchProducts, 6000);
+   
+  }, [pathname]);
 
-    // Clear interval on component unmount
-    return () => clearInterval(intervalId);
+  const [myCart, setMyCart] = useState([]);
+  useEffect(() => {
+    async function fetchCart() {
+      try {
+        const response = await axios.get(`${baseUrl}/user/cart`, {
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          },
+        });
+        if (response.status === 200) {
+          setMyCart(response.data.oblist); // Set the products state with the oblist
+        } 
+        
+      } catch (error) {
+        console.error('Error fetching Cart:', error);
+      }
+    }
+   
+    fetchCart();
+   
   }, [pathname]);
 
   
@@ -137,14 +170,32 @@ function DemoPageContent({ pathname }) {
               {products.map(product => (
                 <MyItemCard 
                   key={product.productId} 
+                  productId={parseInt(product.productId, 10)}
+                  price={product.price}
                   itemName={product.productName} 
                   itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'} 
                   itemDescription={product.description} 
-                  itemPrice={product.price} 
+                  itemSize={product.sizes}
+                  itemQuantity={product.quantity}
+              
                 />
               ))}
             </>
           )}
+          {pathname === '/Cart/Cart1' && (
+            <>
+              {myCart.map(cart => (
+                <MyCartItemCard 
+                  key={cart.cartId}
+                  itemId={cart.cartId} 
+                  itemName={cart.productName} 
+                  itemQuantity={cart.quantity} 
+                  itemPrice={cart.price} 
+                />
+              ))}
+            </>
+          )}
+          
 
     </Box>
   );
@@ -175,7 +226,7 @@ DemoPageContent.propTypes = {
       <DashboardLayout>
         <DemoPageContent pathname={pathname}/>
           
-       
+     
         
       </DashboardLayout>
     </AppProvider>
