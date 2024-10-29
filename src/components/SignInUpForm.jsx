@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import './css/SignInUpForm.css'; 
 import axios from 'axios';
 
 const baseUrl = import.meta.env.VITE_BASE_URL; 
 
-const SignInUpForm = () => {
+const SignInUpForm = ({ onSignIn }) => {
   const [rightPanelActive, setRightPanelActive] = useState(false);
   const [signUpData, setSignUpData] = useState({ email: '', username: '', role: '', password: '' });
   const [signInData, setSignInData] = useState({ email: '', password: '' });
@@ -12,7 +13,8 @@ const SignInUpForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState('');
 
-  // Retrieve token from localStorage on component mount
+  const navigate = useNavigate(); 
+
   useEffect(() => {
     const savedToken = JSON.parse(sessionStorage.getItem('token'));
     if (savedToken) setToken(savedToken);
@@ -72,6 +74,8 @@ const SignInUpForm = () => {
       if (response.data.token) {
         setToken(response.data.token);
         sessionStorage.setItem('token', JSON.stringify(response.data.token));
+        onSignIn(); 
+        navigate('/dashboard');
       }
     } catch (error) {
       if (error.response) {
