@@ -6,6 +6,7 @@ import axios from 'axios';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
+// eslint-disable-next-line react/prop-types
 function MyCartItemCard({ itemId, itemName, itemQuantity, itemPrice }) {
   const [quantity, setQuantity] = useState(itemQuantity);
   const [size, setSize] = useState('Small');

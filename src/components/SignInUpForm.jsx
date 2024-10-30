@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import './css/SignInUpForm.css'; 
@@ -93,6 +94,8 @@ const SignInUpForm = ({ onSignIn }) => {
   };
 
   return (
+    
+     
     <div className={`container ${rightPanelActive ? 'right-panel-active' : ''}`} id="container">
       <div className="form-container sign-up-container">
         <form onSubmit={handleSignUpSubmit}>
@@ -135,6 +138,7 @@ const SignInUpForm = ({ onSignIn }) => {
         </div>
       </div>
     </div>
+    
   );
 };
 

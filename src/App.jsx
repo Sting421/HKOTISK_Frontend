@@ -9,7 +9,6 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const handleSignIn = () => {
-    // Assuming sign-in logic is successful
     setIsAuthenticated(true);
   };
 
@@ -17,15 +16,17 @@ function App() {
     <Router>
       <Routes>
         <Route
-          path="/"
+          exact path="/"
           element={<SignInUpForm onSignIn={handleSignIn} />}
         />
         <Route
-          path="/dashboard"
+          exact path="/dashboard"
           element={isAuthenticated ? <MyDashboard /> : <Navigate to="/" />}
         />
       </Routes>
     </Router>
+  
+
   );
 }
 
