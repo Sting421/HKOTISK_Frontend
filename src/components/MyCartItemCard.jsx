@@ -66,9 +66,6 @@ function MyCartItemCard({  itemId, itemName, itemQuantity, itemPrice }) {
     }
   };
 
-
-
-
   const handleRemoveItem = async (e) => {
     e.preventDefault();
     try {

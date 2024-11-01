@@ -56,7 +56,6 @@ function MyDashboard({ window }) {
   const [pathname, setPathname] = useState('/dashboard');
   const [token, setToken] = useState('');
   const [products, setProducts] = useState([]);
-  const [myCart, setMyCart] = useState([]);
  
   useEffect(() => {
     const savedToken = sessionStorage.getItem('token');
@@ -67,7 +66,7 @@ function MyDashboard({ window }) {
 
   useEffect(() => {
     if (token) {
-      fetchData(`${baseUrl}/user/cart`, token, setMyCart);
+
       fetchData(`${baseUrl}/user/product`, token, setProducts);
     }
   }, [pathname]);
@@ -94,10 +93,10 @@ function MyDashboard({ window }) {
           itemQuantity={product.quantity}
         />
       ))}
-      {pathname === '/Cart/Cart1' && <MyCart userCart={myCart}/>}
+      {pathname === '/Cart/Cart1' && <MyCart />}
       {pathname === '/Cart/AddProducts' && <AddProducts baseUrl ={baseUrl} getToken = {token} />}
     </Box>
-  ), [pathname, products, myCart]);
+  ), [pathname, products]);
 
   return (
     <AppProvider
