@@ -1,12 +1,14 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import { useState, useEffect, useMemo } from 'react';
-import { Button, Card, CardContent, Grid, IconButton, Typography } from '@mui/material';
+import { Alert, Button, Card, CardContent, Grid, IconButton, Snackbar, Typography } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import axios from 'axios';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-const sizeOptions = ['Small', 'Large'];
+const sizeOptions = ['S','M', 'L'];
 
 function MyItemCard({ productId, price, itemName, itemImage, itemDescription, itemSize, itemQuantity }) {
   const [quantity, setQuantity] = useState(1);
@@ -14,6 +16,8 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState('');
+
+  const [open, setOpen] = useState(false);
 
   const itemData = useMemo(() => ({
     productId: parseInt(productId, 10),
@@ -33,9 +37,7 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
 
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   
-  const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
-
- 
+  const decrementQuantity = () => {setQuantity((prev) => Math.max(1, prev - 1))};
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -58,6 +60,8 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("Added to Cart successfully:", response.data);
+
+      setOpen(true);
     } catch (error) {
       setError('Failed to add to cart. Please try again.');
       console.error(error);
@@ -65,9 +69,17 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
       setIsLoading(false);
     }
   };
+  const handleClose = (reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
+
 
   return (
-    <Card sx={{ borderRadius: '4%', width: '30rem', backgroundColor: 'inherit', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', maxHeight: '400px', maxWidth: '500px', minHeight: '300px', minWidth: '500px' }}>
+    <Card sx={{ borderRadius: '4%', width: '30rem', backgroundColor: 'inherit', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', maxHeight: '400px', maxWidth: '600px', minHeight: '300px', minWidth: '600px' }}>
       <CardContent>
         <Grid container spacing={3}>
           <Grid item xs={6}>
@@ -79,7 +91,7 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
           </Grid>
           <Grid item xs={6}>
             <Typography variant="h6">{itemName}</Typography>
-            <Typography color="#883C40">P{price}</Typography>
+            <Typography color="#883C40">P{price.toFixed(2)}</Typography>
             <Typography variant="body2" color="textSecondary" sx={{ marginTop: '0.5rem' }}>
               {itemDescription}
             </Typography>
@@ -103,7 +115,7 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
           <Grid item xs={6}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Grid item xs={6}>
-                {itemSize && (
+                {itemSize != null && (
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '20px', marginLeft: '15px' }}>
                     <Typography variant="body2" style={{ fontWeight: '500', marginTop: '5px' }}>Size</Typography>
                     {sizeOptions.map(option => (
@@ -115,10 +127,13 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
                           borderRadius: '0% 25% 25% 25% / 54% 54% 0% 46%',
                           backgroundColor: size === option ? '#757575' : 'transparent',
                           color: size === option ? '#ffffff' : '#757575',
+                          paddingRight: '30px',
+                          paddingLeft: '30px',
                           borderColor: '#757575',
                           '&:hover': {
                             backgroundColor: size === option ? '#616161' : 'rgba(117, 117, 117, 0.1)',
                             borderColor: size === option ? '#616161' : '#757575',
+                           
                           },
                         }}
                         onClick={() => setSize(option)}
@@ -139,6 +154,11 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
                 >
                   Add to Cart
                 </Button>
+                <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+                  <Alert  onClose={handleClose}  severity="success" variant="filled"  sx={{ width: '100%' }} >
+                    Added to Cart successfully
+                  </Alert>
+                </Snackbar>
               </div>
             </Grid>
           </Grid>

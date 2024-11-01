@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -6,7 +7,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Autocomplete, Checkbox, FormControlLabel, TextField } from '@mui/material';
 import axios from 'axios';
-
+    
 const baseUrl = import.meta.env.VITE_BASE_URL; 
 
 export default function AddProducts() {
@@ -31,6 +32,7 @@ export default function AddProducts() {
     
 
     const handleProductChange = (e) => {
+      
         const { name, value, type, checked } = e.target;
 
         if (name === 'sizes') {

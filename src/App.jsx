@@ -15,18 +15,16 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route
-          exact path="/"
-          element={<SignInUpForm onSignIn={handleSignIn} />}
+        <Route 
+          path="/auth" 
+          element={<SignInUpForm onSignIn={handleSignIn} />} 
         />
-        <Route
-          exact path="/dashboard"
-          element={isAuthenticated ? <MyDashboard /> : <Navigate to="/" />}
+        <Route 
+          path="/dashboard" 
+          element={<MyDashboard />       } 
         />
       </Routes>
     </Router>
-  
-
   );
 }
 

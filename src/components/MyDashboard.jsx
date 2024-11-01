@@ -10,7 +10,6 @@ import FastfoodIcon from '@mui/icons-material/Fastfood';
 import InfoIcon from '@mui/icons-material/Info';
 import ClassIcon from '@mui/icons-material/Class';
 import MyItemCard from './MyItemCard';
-import MyCartItemCard from './MyCartItemCard';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import axios from 'axios';
@@ -18,6 +17,8 @@ import './css/dashboard.css';
 
 import './css/dashboard.css'; 
 import AddProducts from './AddProducts';
+import MyCart from './MyCart';
+import MyLogOut from './MyLogOut';
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const NAVIGATION = [
@@ -93,15 +94,7 @@ function MyDashboard({ window }) {
           itemQuantity={product.quantity}
         />
       ))}
-      {pathname === '/Cart/Cart1' && myCart.map(cart => (
-        <MyCartItemCard
-          key={cart.cartId}
-          itemId={cart.cartId}
-          itemName={cart.productName}
-          itemQuantity={cart.quantity}
-          itemPrice={cart.price}
-        />
-      ))}
+      {pathname === '/Cart/Cart1' && <MyCart userCart={myCart}/>}
       {pathname === '/Cart/AddProducts' && <AddProducts baseUrl ={baseUrl} getToken = {token} />}
     </Box>
   ), [pathname, products, myCart]);
@@ -112,11 +105,13 @@ function MyDashboard({ window }) {
       branding={{ logo: <img src="src/res/hkotiskLogo.svg" alt="Logo" />, title: '' }}
       router={router}
       theme={demoTheme}
-      window={window !== undefined ? window() : undefined}
+      window={window !== undefined ? window() : undefined} 
     >
+      
       <DashboardLayout>
         <DemoPageContent />
       </DashboardLayout>
+      <MyLogOut/>
     </AppProvider>
   );
 }

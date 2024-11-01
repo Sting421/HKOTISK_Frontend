@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
@@ -143,3 +144,43 @@ const SignInUpForm = ({ onSignIn }) => {
 };
 
 export default SignInUpForm;
+
+
+const MyLogOut = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleSignInSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const response = await axios.post(`${baseUrl}/auth/signout`);
+      console.log('SignOut successful:', response.data);
+      setSuccessMessage('You have been successfully signed out.');
+    } catch (error) {
+      console.error('Error:', error.message);
+      setError('Failed to sign out. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <form onSubmit={handleSignInSubmit}>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Signing out...' : 'Sign Out'}
+        </button>
+      </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+    </>
+  );
+};
+
+
+

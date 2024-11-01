@@ -6,12 +6,16 @@ import axios from 'axios';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-// eslint-disable-next-line react/prop-types
-function MyCartItemCard({ itemId, itemName, itemQuantity, itemPrice }) {
+function MyCartItemCard({  itemId, itemName, itemQuantity, itemPrice }) {
   const [quantity, setQuantity] = useState(itemQuantity);
   const [size, setSize] = useState('Small');
   const [token, setToken] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const [cartData, setCartData] = useState({ id: itemId, quantity });
 
   useEffect(() => {
     const savedData = JSON.parse(sessionStorage.getItem('token'));
@@ -21,9 +25,49 @@ function MyCartItemCard({ itemId, itemName, itemQuantity, itemPrice }) {
       console.log("No Data found");
     }
   }, []);
+  const incrementQuantity = () => {
+    setQuantity((prev) => {
+      const newQuantity = prev + 1;
+      setCartData((prevData) => ({ ...prevData, quantity: (newQuantity + 1)  }));
+      return newQuantity;
+    });
+    handleQuantityUpdate();
+  };
 
-  const incrementQuantity = () => setQuantity(prev => prev + 1);
-  const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1));
+  const decrementQuantity = () => {
+    setQuantity((prev) => {
+      const newQuantity = Math.max(1, prev - 1);
+      setCartData((prevData) => ({ ...prevData, quantity: newQuantity }));
+      return newQuantity;
+    });
+    handleQuantityUpdate();
+  };
+
+  // Update cart quantity on the server
+  const handleQuantityUpdate = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.put(
+        `${baseUrl}/user/cart`,
+        cartData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log("Quantity update successful:", response.data);
+
+      if (response.data.token) {
+        setToken(response.data.token);
+        sessionStorage.setItem('token', JSON.stringify(response.data.token));
+      }
+    } catch (error) {
+      setError('Quantity update failed. Please try again.');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+
 
   const handleRemoveItem = async (e) => {
     e.preventDefault();
