@@ -101,6 +101,7 @@ export default function MyCart() {
           itemName={cart.productName}
           itemQuantity={cart.quantity}
           itemPrice={cart.price}
+          myToken={token}
         />
       ))}
       <Divider sx={{ marginTop: 8 }} />

@@ -12,6 +12,7 @@ import ClassIcon from '@mui/icons-material/Class';
 import MyItemCard from './MyItemCard';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import axios from 'axios';
 import './css/dashboard.css'; 
 
@@ -19,16 +20,22 @@ import './css/dashboard.css';
 import AddProducts from './AddProducts';
 import MyCart from './MyCart';
 import MyLogOut from './MyLogOut';
+
+
+import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
+import MyUpdateProducts from './MyUpdateProducts';
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const NAVIGATION = [
   { segment: 'Favorites', title: 'Favorites', icon: <DashboardIcon /> },
   { segment: 'Snacks', title: 'Snacks', icon: <FastfoodIcon /> },
+  { segment: 'Cart', title: 'Cart', icon: <ShoppingCartIcon /> },
   {
-    segment: 'Cart', title: 'Cart', icon: <ClassIcon />,
+    segment: 'Staff', title: 'Staff', icon: <ManageAccountsIcon />,
     children: [
-      { segment: 'Cart1', title: 'Cart1', icon: <ShoppingCartIcon /> },
       { segment: 'AddProducts', title: 'AddProducts', icon: <AddCircleOutlineIcon /> },
+      
+      { segment: 'UpdateProducts', title: 'UpdateProducts', icon: <ModeEditOutlineIcon /> },
     ],
   },
   { kind: 'divider' },
@@ -56,6 +63,7 @@ function MyDashboard({ window }) {
   const [pathname, setPathname] = useState('/dashboard');
   const [token, setToken] = useState('');
   const [products, setProducts] = useState([]);
+  const [myCart, setMyCart] = useState([]);
  
   useEffect(() => {
     const savedToken = sessionStorage.getItem('token');
@@ -66,7 +74,7 @@ function MyDashboard({ window }) {
 
   useEffect(() => {
     if (token) {
-
+      fetchData(`${baseUrl}/user/cart`, token, setMyCart);
       fetchData(`${baseUrl}/user/product`, token, setProducts);
     }
   }, [pathname]);
@@ -91,12 +99,27 @@ function MyDashboard({ window }) {
           itemDescription={product.description}
           itemSize={product.sizes}
           itemQuantity={product.quantity}
+          myToken={token}
         />
       ))}
-      {pathname === '/Cart/Cart1' && <MyCart />}
-      {pathname === '/Cart/AddProducts' && <AddProducts baseUrl ={baseUrl} getToken = {token} />}
+      {pathname === '/Cart' && <MyCart userCart={myCart}  />}
+      {pathname === '/Staff/UpdateProducts' && products.map(product => (
+              <MyUpdateProducts
+                key={product.productId}
+                productId={parseInt(product.productId, 10)}
+                price={product.price}
+                itemName={product.productName}
+                itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
+                itemDescription={product.description}
+                itemSize={product.sizes}
+                itemQuantity={product.quantity}
+                myToken={token}
+              />
+            ))}
+     
+      {pathname === '/Staff/AddProducts' && <AddProducts baseUrl ={baseUrl} getToken = {token} />}
     </Box>
-  ), [pathname, products]);
+  ), [pathname, products, myCart]);
 
   return (
     <AppProvider

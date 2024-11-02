@@ -6,10 +6,10 @@ import axios from 'axios';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-function MyCartItemCard({  itemId, itemName, itemQuantity, itemPrice }) {
+function MyCartItemCard({  itemId, itemName, itemQuantity, itemPrice ,myToken}) {
   const [quantity, setQuantity] = useState(itemQuantity);
   const [size, setSize] = useState('Small');
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState(myToken);
   const [errorMessage, setErrorMessage] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
@@ -17,14 +17,7 @@ function MyCartItemCard({  itemId, itemName, itemQuantity, itemPrice }) {
 
   const [cartData, setCartData] = useState({ id: itemId, quantity });
 
-  useEffect(() => {
-    const savedData = JSON.parse(sessionStorage.getItem('token'));
-    if (savedData) {
-      setToken(savedData);
-    } else {
-      console.log("No Data found");
-    }
-  }, []);
+ 
   const incrementQuantity = () => {
     setQuantity((prev) => {
       const newQuantity = prev + 1;

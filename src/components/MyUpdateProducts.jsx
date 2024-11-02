@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useMemo } from 'react';
-import { Alert, Button, Card, CardContent, Grid, IconButton, Snackbar, Typography } from '@mui/material';
+import { Alert, Button, Card, CardContent, Grid, IconButton, InputAdornment, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import axios from 'axios';
@@ -11,12 +11,14 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const sizeOptions = ['S','M', 'L'];
 
-function MyItemCard({ productId, price, itemName, itemImage, itemDescription, itemSize, itemQuantity,myToken }) {
+function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescription, itemSize, itemQuantity,myToken }) {
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState('S');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState(myToken);
+  const [productData, setProductData] = useState(
+    { productId: parseInt(productId,10), description: itemDescription, productName: itemName, price: parseFloat(price) ,quantity:itemQuantity});
 
   const [open, setOpen] = useState(false);
 
@@ -28,12 +30,32 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
   }), [productId,size, quantity, price]);
 
 
+  const handleProductChange = (e) => {
+    const { name, value } = e.target;
+    setProductData({ ...productData, [name]: value });
+  };
+  const handleDelete = async (e) => {
+    e.preventDefault();
 
-  const incrementQuantity = () => setQuantity((prev) => prev + 1);
-  
-  const decrementQuantity = () => {setQuantity((prev) => Math.max(1, prev - 1))};
+    try {
+      const itemIdInt = parseInt(productData.productId, 10);
+      const response = await axios.delete(`${baseUrl}/staff/product?productId=${itemIdInt}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response);
+      setOpen(true);
+    } catch (error) {
+      setError('Failed to add to cart. Please try again.');
+     
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
-  const handleAddToCart = async (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -42,19 +64,31 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
       setIsLoading(false);
       return;
     }
-    console.log(token)
+    console.log(productData.productId)
+    console.log(productData.price)
+    console.log(productData.quantity)
+    const requestBody = {
+     
+        productId: parseInt(productData.productId,10),
+        description: productData.description,
+        productName: productData.productName,
+        price: parseFloat(productData.price),
+        quantity: productData.quantity,
+        category: "Food",
+      };
 
     try {
-      const response = await axios.post(
-        `${baseUrl}/user/addToCart`,
-        itemData,
+      const response = await axios.put(
+        `${baseUrl}/staff/product`,
+        requestBody,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("Added to Cart successfully:", response.data);
+      console.log("Update successfully:", response.data);
 
       setOpen(true);
     } catch (error) {
       setError('Failed to add to cart. Please try again.');
+      console.log(requestBody)
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -81,26 +115,63 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
             />
           </Grid>
           <Grid item xs={6}>
-            <Typography variant="h6">{itemName}</Typography>
-            <Typography color="#883C40">P{price.toFixed(2)}</Typography>
-            <Typography variant="body2" color="textSecondary" sx={{ marginTop: '0.5rem' }}>
-              {itemDescription}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" sx={{ marginTop: '0.5rem' }}>
-              Available: {itemQuantity}
-            </Typography>
+          <TextField
+                InputProps={{
+                    startAdornment: <InputAdornment position="start">Name:</InputAdornment>
+                }}
+                       hiddenLabel
+                        id="outlined-size-small"
+                        defaultValue={productData.productName} 
+                        name='productName'
+                        onChange={handleProductChange}
+                        size="small"
+                        sx={{ width: '200px' }}
+                        />
+        
+             <TextField
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">Price:</InputAdornment>
+                    }}
+                    hiddenLabel
+                    id="outlined-size-small"
+                    name="price"
+                    defaultValue={productData.price}
+                    onChange={handleProductChange}
+                    size="small"
+                    sx={{ width: '130px' }}
+                />
+          
+          <div>
+          <TextareaAutosize
+            id="outlined-size-small"
+            name="description"
+      
+            defaultValue={productData.description}
+            onChange={handleProductChange}
+            rows={4}
+            cols={36}
+            sx={{ fontFamily: "'IBM Plex Sans', sans-serif" }} 
+          />
+          </div>
+           
+            <TextField
+             InputProps={{
+                startAdornment: <InputAdornment position="start">Quantity:</InputAdornment>
+            }}
+                hiddenLabel
+                id="outlined-size-small"
+                name='quantity'
+                defaultValue={productData.quantity}
+                onChange={handleProductChange}
+                size="small"
+                sx={{ width: '130px' }}
+            />
           </Grid>
         </Grid>
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '30px', marginLeft: "50px" }}>
-              <IconButton size="small" onClick={decrementQuantity}>
-                <RemoveCircleOutlineIcon fontSize="medium" />
-              </IconButton>
-              <Typography>{quantity}</Typography>
-              <IconButton size="small" onClick={incrementQuantity}>
-                <AddCircleOutlineRoundedIcon fontSize="medium" />
-              </IconButton>
+             
             </div>
           </Grid>
           <Grid item xs={6}>
@@ -141,13 +212,20 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
                 <Button
                   variant="contained"
                   sx={{ borderRadius: '10% 10% 10% 10% / 50% 50% 50% 50%', backgroundColor: '#883C40', '&:hover': { backgroundColor: '#6f2b2f' }, paddingLeft: '40px', paddingRight: '40px' }}
-                  onClick={handleAddToCart}
+                  onClick={handleUpdate}
                 >
-                  Add to Cart
+                  Update
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{ borderRadius: '10% 10% 10% 10% / 50% 50% 50% 50%', backgroundColor: '#883C40', '&:hover': { backgroundColor: '#6f2b2f' }, paddingLeft: '40px', paddingRight: '40px' }}
+                  onClick={handleDelete}
+                >
+                  Remove
                 </Button>
                 <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
                   <Alert  onClose={handleClose}  severity="success" variant="filled"  sx={{ width: '100%' }} >
-                    Added to Cart successfully
+                    Product Updated
                   </Alert>
                 </Snackbar>
               </div>
@@ -160,4 +238,4 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
   );
 }
 
-export default MyItemCard;
+export default MyUpdateProducts;
