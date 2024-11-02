@@ -18,7 +18,7 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState(myToken);
   const [productData, setProductData] = useState(
-    { productId: parseInt(productId,10), description: itemDescription, productName: itemName, price: parseFloat(price) ,quantity:itemQuantity});
+    { productId: parseInt(productId,10), description: itemDescription, productName: itemName, price: parseFloat(price) ,quantity:itemQuantity, sizes : itemSize});
 
   const [open, setOpen] = useState(false);
 
@@ -64,9 +64,7 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
       setIsLoading(false);
       return;
     }
-    console.log(productData.productId)
-    console.log(productData.price)
-    console.log(productData.quantity)
+
     const requestBody = {
      
         productId: parseInt(productData.productId,10),
@@ -75,6 +73,7 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
         price: parseFloat(productData.price),
         quantity: productData.quantity,
         category: "Food",
+        sizes:productData.sizes
       };
 
     try {
@@ -84,7 +83,7 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("Update successfully:", response.data);
-
+      console.log(requestBody);
       setOpen(true);
     } catch (error) {
       setError('Failed to add to cart. Please try again.');

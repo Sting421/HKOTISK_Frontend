@@ -11,21 +11,21 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const sizeOptions = ['S','M', 'L'];
 
-function MyItemCard({ productId, price, itemName, itemImage, itemDescription, itemSize, itemQuantity,myToken }) {
+function MyItemCard(props) {
   const [quantity, setQuantity] = useState(1);
-  const [size, setSize] = useState('S');
+  const [size, setSize] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [token, setToken] = useState(myToken);
+  const [token, setToken] = useState(props.myToken);
 
   const [open, setOpen] = useState(false);
 
   const itemData = useMemo(() => ({
-    productId: parseInt(productId, 10),
+    productId: parseInt(props.productId, 10),
     quantity,
-    price: parseFloat(price),
+    price: parseFloat(props.price),
     size:String(size), 
-  }), [productId,size, quantity, price]);
+  }), [props.productId,size, quantity, props.price]);
 
 
 
@@ -42,7 +42,7 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
       setIsLoading(false);
       return;
     }
-    console.log(token)
+  
 
     try {
       const response = await axios.post(
@@ -75,19 +75,19 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
         <Grid container spacing={3}>
           <Grid item xs={6}>
             <img
-              src={`${itemImage}?height=60&width=60`}
-              alt={itemName}
+              src={`${props.itemImage}?height=60&width=60`}
+              alt={props.itemName}
               style={{ width: '13rem', height: '11rem', objectFit: 'cover', borderRadius: '0.375rem' }}
             />
           </Grid>
           <Grid item xs={6}>
-            <Typography variant="h6">{itemName}</Typography>
-            <Typography color="#883C40">P{price.toFixed(2)}</Typography>
+            <Typography variant="h6">{props.itemName}</Typography>
+            <Typography color="#883C40">P{props.price.toFixed(2)}</Typography>
             <Typography variant="body2" color="textSecondary" sx={{ marginTop: '0.5rem' }}>
-              {itemDescription}
+              {props.itemDescription}
             </Typography>
             <Typography variant="body2" color="textSecondary" sx={{ marginTop: '0.5rem' }}>
-              Available: {itemQuantity}
+              Available: {props.itemQuantity}
             </Typography>
           </Grid>
         </Grid>
@@ -106,7 +106,7 @@ function MyItemCard({ productId, price, itemName, itemImage, itemDescription, it
           <Grid item xs={6}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Grid item xs={6}>
-                {itemSize != null && (
+                {props.itemSize != null && (
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '20px', marginLeft: '15px' }}>
                     <Typography variant="body2" style={{ fontWeight: '500', marginTop: '5px' }}>Size</Typography>
                     {sizeOptions.map(option => (

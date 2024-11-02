@@ -15,15 +15,16 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import axios from 'axios';
 import './css/dashboard.css'; 
-
-import './css/dashboard.css'; 
 import AddProducts from './AddProducts';
 import MyCart from './MyCart';
 import MyLogOut from './MyLogOut';
 
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+
 
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 import MyUpdateProducts from './MyUpdateProducts';
+import MyViewOrders from './MyViewOrders';
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const NAVIGATION = [
@@ -36,6 +37,8 @@ const NAVIGATION = [
       { segment: 'AddProducts', title: 'AddProducts', icon: <AddCircleOutlineIcon /> },
       
       { segment: 'UpdateProducts', title: 'UpdateProducts', icon: <ModeEditOutlineIcon /> },
+    
+      { segment: 'ViewOrders', title: 'ViewOrders', icon: <FormatListBulletedIcon /> },
     ],
   },
   { kind: 'divider' },
@@ -64,6 +67,7 @@ function MyDashboard({ window }) {
   const [token, setToken] = useState('');
   const [products, setProducts] = useState([]);
   const [myCart, setMyCart] = useState([]);
+  const [myOrders, setMyOrders] = useState([]);
  
   useEffect(() => {
     const savedToken = sessionStorage.getItem('token');
@@ -76,6 +80,8 @@ function MyDashboard({ window }) {
     if (token) {
       fetchData(`${baseUrl}/user/cart`, token, setMyCart);
       fetchData(`${baseUrl}/user/product`, token, setProducts);
+      fetchData(`${baseUrl}/staff/orders`, token, setMyOrders);
+  
     }
   }, [pathname]);
 
@@ -88,7 +94,6 @@ function MyDashboard({ window }) {
   const DemoPageContent = useCallback(() => (
     <Box sx={{ py: 4, display: 'flex', flexWrap: 'wrap', gap: '40px' }}>
       {pathname === '/dashboard' && <Typography>Welcome to the Dashboard</Typography>}
-      
       {pathname === '/Snacks' && products.map(product => (
         <MyItemCard
           key={product.productId}
@@ -102,24 +107,27 @@ function MyDashboard({ window }) {
           myToken={token}
         />
       ))}
-      {pathname === '/Cart' && <MyCart userCart={myCart}  />}
+      {pathname === '/Cart' && <MyCart userCart={myCart} />}
       {pathname === '/Staff/UpdateProducts' && products.map(product => (
-              <MyUpdateProducts
-                key={product.productId}
-                productId={parseInt(product.productId, 10)}
-                price={product.price}
-                itemName={product.productName}
-                itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
-                itemDescription={product.description}
-                itemSize={product.sizes}
-                itemQuantity={product.quantity}
-                myToken={token}
-              />
-            ))}
-     
-      {pathname === '/Staff/AddProducts' && <AddProducts baseUrl ={baseUrl} getToken = {token} />}
+        <MyUpdateProducts
+          key={product.productId}
+          productId={parseInt(product.productId, 10)}
+          price={product.price}
+          itemName={product.productName}
+          itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
+          itemDescription={product.description}
+          itemSize={product.sizes}
+          itemQuantity={product.quantity}
+          myToken={token}
+        />
+      ))}
+      {pathname === '/Staff/AddProducts' && <AddProducts baseUrl={baseUrl} getToken={token} />}
+      {pathname === '/Staff/ViewOrders' && Array.isArray(myOrders) && myOrders.map(order => (
+        <MyViewOrders key={order.orderId} myOrder={order} />
+      ))}
     </Box>
-  ), [pathname, products, myCart]);
+  ), [pathname, products, myCart, myOrders, token]);
+  
 
   return (
     <AppProvider

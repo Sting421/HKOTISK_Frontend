@@ -1,4 +1,4 @@
-import * as React from 'react';
+
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -12,91 +12,95 @@ import { Alert, Snackbar } from '@mui/material';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-// eslint-disable-next-line react/prop-types
 export default function MyCart() {
   const [myCart, setMyCart] = useState([]);
-  const [state, setState] = useState({ right: false });
-  const navigate = useNavigate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [token, setToken] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [checkout, setCheckout] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedToken = sessionStorage.getItem('token');
-    if (savedToken) setToken(JSON.parse(savedToken));
-    else console.log("No Data found");
+    if (savedToken) {
+      setToken(JSON.parse(savedToken));
+    } else {
+      console.log("No token found");
+    }
   }, []);
-  
+
   useEffect(() => {
-    fetchData(`${baseUrl}/user/cart`);
-  }, [token]); 
-  
+    if (token) fetchData(`${baseUrl}/user/cart`);
+    
+  }, [token]);
 
   const fetchData = async (url) => {
-    if (!token) return; 
-   
     try {
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.status === 200) setMyCart(response.data.oblist);
+      if (response.status === 200) {
+        setMyCart(response.data.oblist);
+      }
     } catch (error) {
-      console.error(`Error fetching data from ${url}:`, error);
-     
-    } 
-      
+      console.error(`Error fetching data:`, error);
+    }
   };
+  
 
   const handleOrderRequest = async () => {
     if (myCart.length === 0) {
       console.warn("Cart is empty. Cannot proceed to checkout.");
-      setOpen(true);
+      setOpenSnackbar(true);
       return;
     }
+  
     try {
-      await Promise.all(myCart.map(cart => handleRemoveItem(cart.cartId)));
-      
-      const response = await axios.get(`${baseUrl}/user/order`, {
+      const response = await axios.post(`${baseUrl}/user/order`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
-      console.log("Checkout Successful", response.data);
-      navigate('/dashboard');
+       console.log(response)
     } catch (error) {
-      console.error(`Error during checkout:`, error);
+      console.error("Error during checkout:", error);
+    } finally {
+      setCheckout(false); 
      
-    } 
+    }
+  };
+  
+
+  const deleteItems = () => {
+    myCart.forEach((cartItem) => handleRemoveItem(cartItem.cartId));
+    setMyCart([]); // Clear cart locally after deletion
   };
 
   const handleRemoveItem = async (itemId) => {
     try {
-      const itemIdInt = parseInt(itemId, 10);
-      const response = await axios.delete(`${baseUrl}/user/cart?cartId=${itemIdInt}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await axios.delete(`${baseUrl}/user/cart?cartId=${itemId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Item removed from cart successfully:", response.data);
+      setMyCart((prevCart) => prevCart.filter((item) => item.cartId !== itemId));
+      console.log("Item removed from cart:", response.data);
     } catch (error) {
-      console.error('Error Removing Item:', error);
-      // Optionally provide user feedback here
+      console.error("Error removing item:", error);
     }
   };
 
-  const toggleDrawer = (anchor, open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
-    setState({ ...state, [anchor]: open });
+  const toggleDrawer = (open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
+    setDrawerOpen(open);
   };
 
-  const list = (anchor) => (
-    <Box
-      sx={{ width: 450, marginTop: 8 }}
-      role="presentation"
-      onKeyDown={toggleDrawer(anchor, false)}
-    >
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setOpenSnackbar(false);
+  };
+
+  const CartList = () => (
+    <Box sx={{ width: 450, marginTop: 8 }} role="presentation">
       {myCart.map((cart) => (
         <MyCartItemCard
-          key={cart.cartId} // Ensure cartId is unique
+          key={cart.cartId}
           itemId={cart.cartId}
           itemName={cart.productName}
           itemQuantity={cart.quantity}
@@ -106,37 +110,25 @@ export default function MyCart() {
       ))}
       <Divider sx={{ marginTop: 8 }} />
       Total Price
-      <Button variant='filled' onClick={handleOrderRequest}>Check Out</Button>
+      <Button variant="contained" onClick={handleOrderRequest}>
+        Check Out
+      </Button>
     </Box>
   );
 
-  const [open, setOpen] = useState(false);
-  const handleClose = (reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setOpen(false);
-  };
-
   return (
     <div>
-      {['right'].map((anchor) => (
-        <React.Fragment key={anchor}>
-          <Button onClick={toggleDrawer(anchor, true)}>
-            <ShoppingCartIcon />
-          </Button>
-          <Drawer anchor={anchor} open={state[anchor]} onClose={toggleDrawer(anchor, false)}>
-            {list(anchor)}
-          </Drawer>
-        </React.Fragment>
-      ))}
-
-      <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
-        <Alert  onClose={handleClose}  severity="error" variant="filled"  sx={{ width: '100%' }} >
+      <Button onClick={toggleDrawer(true)}>
+        <ShoppingCartIcon />
+      </Button>
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+        <CartList />
+      </Drawer>
+      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="error" variant="filled" sx={{ width: '100%' }}>
           Cart is empty
         </Alert>
       </Snackbar>
     </div>
-    
   );
 }
