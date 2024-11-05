@@ -27,22 +27,19 @@ function MyItemCard(props) {
     size:String(size), 
   }), [props.productId,size, quantity, props.price]);
 
-
-
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
-  
+
   const decrementQuantity = () => {setQuantity((prev) => Math.max(1, prev - 1))};
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
+    setSize('');
     if (!token) {
       setError('You must be logged in to add items to the cart.');
       setIsLoading(false);
       return;
     }
-  
 
     try {
       const response = await axios.post(
@@ -51,10 +48,16 @@ function MyItemCard(props) {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("Added to Cart successfully:", response.data);
+     
 
       setOpen(true);
     } catch (error) {
+      if(size === ''){
+        setError('Please Select Size. Please try again.');
+      }
+     else{
       setError('Failed to add to cart. Please try again.');
+     }
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -67,6 +70,9 @@ function MyItemCard(props) {
 
     setOpen(false);
   };
+  const resetErrorMessage =() =>{
+    setError('');
+  }
 
 
   return (
@@ -114,6 +120,7 @@ function MyItemCard(props) {
                         key={option}
                         variant={size === option ? 'contained' : 'outlined'}
                         size="small"
+                       
                         sx={{
                           borderRadius: '0% 25% 25% 25% / 54% 54% 0% 46%',
                           backgroundColor: size === option ? '#757575' : 'transparent',
@@ -127,7 +134,8 @@ function MyItemCard(props) {
                            
                           },
                         }}
-                        onClick={() => setSize(option)}
+                        onClick={() => { setSize(option); resetErrorMessage(); }}
+
                       >
                         {option}
                       </Button>

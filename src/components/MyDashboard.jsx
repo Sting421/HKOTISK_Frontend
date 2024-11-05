@@ -8,7 +8,6 @@ import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import InfoIcon from '@mui/icons-material/Info';
-import ClassIcon from '@mui/icons-material/Class';
 import MyItemCard from './MyItemCard';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -18,19 +17,17 @@ import './css/dashboard.css';
 import AddProducts from './AddProducts';
 import MyCart from './MyCart';
 import MyLogOut from './MyLogOut';
-
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-
-
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 import MyUpdateProducts from './MyUpdateProducts';
 import MyViewOrders from './MyViewOrders';
+
+import Logo from "../assets/componentsRes/hkotiskLogo.png"
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const NAVIGATION = [
   { segment: 'Favorites', title: 'Favorites', icon: <DashboardIcon /> },
   { segment: 'Snacks', title: 'Snacks', icon: <FastfoodIcon /> },
-  { segment: 'Cart', title: 'Cart', icon: <ShoppingCartIcon /> },
   {
     segment: 'Staff', title: 'Staff', icon: <ManageAccountsIcon />,
     children: [
@@ -67,7 +64,6 @@ function MyDashboard({ window }) {
   const [token, setToken] = useState('');
   const [products, setProducts] = useState([]);
   const [myCart, setMyCart] = useState([]);
-  const [myOrders, setMyOrders] = useState([]);
  
   useEffect(() => {
     const savedToken = sessionStorage.getItem('token');
@@ -80,8 +76,7 @@ function MyDashboard({ window }) {
     if (token) {
       fetchData(`${baseUrl}/user/cart`, token, setMyCart);
       fetchData(`${baseUrl}/user/product`, token, setProducts);
-      fetchData(`${baseUrl}/staff/orders`, token, setMyOrders);
-  
+      
     }
   }, [pathname]);
 
@@ -107,7 +102,7 @@ function MyDashboard({ window }) {
           myToken={token}
         />
       ))}
-      {pathname === '/Cart' && <MyCart userCart={myCart} />}
+
       {pathname === '/Staff/UpdateProducts' && products.map(product => (
         <MyUpdateProducts
           key={product.productId}
@@ -122,29 +117,32 @@ function MyDashboard({ window }) {
         />
       ))}
       {pathname === '/Staff/AddProducts' && <AddProducts baseUrl={baseUrl} getToken={token} />}
-      {pathname === '/Staff/ViewOrders' && Array.isArray(myOrders) && myOrders.map(order => (
-        <MyViewOrders key={order.orderId} myOrder={order} />
-      ))}
+      {pathname === '/Staff/ViewOrders' && <MyViewOrders/>}
     </Box>
-  ), [pathname, products, myCart, myOrders, token]);
+  ), [pathname, products, myCart, token]);
   
-
+  function MyCartFunc(){
+    return(
+      <MyCart userCart={myCart} sx={{ display: 'flex', justifyContent: 'center' }} />
+    );
+  }
   return (
     <AppProvider
       navigation={NAVIGATION}
-      branding={{ logo: <img src="src/res/hkotiskLogo.svg" alt="Logo" />, title: '' }}
+      branding={{ logo: <img src={Logo} alt="Logo" />, title: '' }}
       router={router}
       theme={demoTheme}
-      window={window !== undefined ? window() : undefined} 
-    >
+      window={typeof window !== 'undefined' ? window() : undefined}
       
-      <DashboardLayout>
+    >
+      <DashboardLayout  slots={{ toolbarActions: MyCartFunc }} sx={{mt:5}}>
         <DemoPageContent />
       </DashboardLayout>
-      <MyLogOut/>
+      <MyLogOut />
     </AppProvider>
   );
 }
+
 
 MyDashboard.propTypes = {
   window: PropTypes.func,

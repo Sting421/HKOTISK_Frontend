@@ -1,40 +1,50 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button, Card, CardContent, Grid, IconButton, Typography } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import axios from 'axios';
+import PropTypes from 'prop-types';
+import LoadingSpinner from './LoadingSpinner';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-function MyCartItemCard({  itemId, itemName, itemQuantity, itemPrice ,myToken}) {
-  const [quantity, setQuantity] = useState(itemQuantity);
+function MyCartItemCard(props) {
+  const [quantity, setQuantity] = useState(props.itemQuantity);
   const [size, setSize] = useState('Small');
-  const [token, setToken] = useState(myToken);
+  const [token, setToken] = useState(props.myToken);
   const [errorMessage, setErrorMessage] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const [cartData, setCartData] = useState({ id: itemId, quantity });
+  const [cartData, setCartData] = useState({ id: props.itemId, quantity });
 
  
   const incrementQuantity = () => {
+    
     setQuantity((prev) => {
       const newQuantity = prev + 1;
       setCartData((prevData) => ({ ...prevData, quantity: (newQuantity + 1)  }));
+    
       return newQuantity;
     });
     handleQuantityUpdate();
+  
   };
 
   const decrementQuantity = () => {
     setQuantity((prev) => {
       const newQuantity = Math.max(1, prev - 1);
       setCartData((prevData) => ({ ...prevData, quantity: newQuantity }));
+     
       return newQuantity;
     });
+    props.setIsUpdated(true);
     handleQuantityUpdate();
+    
   };
+  if(isLoading){
+    <LoadingSpinner/>
+  }
 
   // Update cart quantity on the server
   const handleQuantityUpdate = async () => {
@@ -45,29 +55,31 @@ function MyCartItemCard({  itemId, itemName, itemQuantity, itemPrice ,myToken}) 
         cartData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+    
       console.log("Quantity update successful:", response.data);
-
       if (response.data.token) {
         setToken(response.data.token);
         sessionStorage.setItem('token', JSON.stringify(response.data.token));
       }
     } catch (error) {
-      setError('Quantity update failed. Please try again.');
       console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   const handleRemoveItem = async (e) => {
     e.preventDefault();
     try {
-      const itemIdInt = parseInt(itemId, 10);
+   
+      const itemIdInt = parseInt(props.itemId, 10);
       const response = await axios.delete(`${baseUrl}/user/cart?cartId=${itemIdInt}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      props.setIsDeleted(true);
       console.log("Item removed from cart successfully:", response.data);
     } catch (error) {
       console.error('Error Removing Item:', error);
@@ -94,8 +106,8 @@ function MyCartItemCard({  itemId, itemName, itemQuantity, itemPrice ,myToken}) 
             {/* Other content can go here */}
           </Grid>
           <Grid item xs={6}>
-            <Typography variant="h6">{itemName}</Typography>
-            <Typography color="#883C40">This is Item quantity: {itemQuantity}</Typography>
+            <Typography variant="h6">{props.itemName}</Typography>
+            <Typography color="#883C40">This is Item quantity: {quantity}</Typography>
           </Grid>
         </Grid>
         <Grid container spacing={2}>
@@ -109,7 +121,7 @@ function MyCartItemCard({  itemId, itemName, itemQuantity, itemPrice ,myToken}) 
                 <AddCircleOutlineRoundedIcon fontSize="medium" />
               </IconButton>
             </div>
-            <Typography color="#883C40">Total Price: {(quantity * itemPrice).toFixed(2)}</Typography>
+            <Typography color="#883C40">Total Price: {(quantity * props.itemPrice).toFixed(2)}</Typography>
             <Button
               variant={'outlined'}
               size="small"
@@ -163,3 +175,14 @@ function MyCartItemCard({  itemId, itemName, itemQuantity, itemPrice ,myToken}) 
 }
 
 export default MyCartItemCard;
+
+MyCartItemCard.propTypes = {
+  itemId:PropTypes.string.isRequired,
+  itemName: PropTypes.string.isRequired,
+  itemQuantity: PropTypes.number,
+  setIsDeleted: PropTypes.bool,
+  setIsUpdated: PropTypes.bool,
+  itemPrice:PropTypes.number.isRequired,
+  myToken:PropTypes.string.isRequired
+};
+

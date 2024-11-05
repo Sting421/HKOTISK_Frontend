@@ -32,6 +32,13 @@ h1 {
   margin: 0;
  
 }
+.emailInput{
+  margin-top: 50px;
+}
+.signupBtnSbt{
+  margin-top: 40px;
+  width: 250px;
+}
 
 h2 {
   text-align: center;
@@ -85,7 +92,6 @@ button.ghost {
 form {
   background-color: #FFFFFF;
   margin-top: 60px;
- 
   justify-content: center;
   flex-direction: column;
   padding: 0 50px;
@@ -100,6 +106,23 @@ input {
   margin: 8px 0;
   width: 100%;
 }
+.password{
+  background-color: #eee;
+  border: none;
+  padding: 12px 15px;
+ 
+  width: 100%;
+ 
+}
+.emailIn{
+  background-color: #eee;
+  border: none;
+  padding: 12px 15px;
+  margin: 8px 0;
+  width: 100%;
+  margin-top: 100px;
+}
+
 
 .container {
   background-color: #fff;
@@ -143,6 +166,9 @@ input {
   z-index: 5;
   animation: show 0.6s;
 }
+.wrdCook{
+  color: #eee;
+}
 
 @keyframes show {
   0%,
@@ -171,6 +197,10 @@ input {
 
 .container.right-panel-active .overlay-container {
   transform: translateX(-100%);
+}
+.error{
+  color: #FF4B2B;
+  
 }
 
 .overlay {

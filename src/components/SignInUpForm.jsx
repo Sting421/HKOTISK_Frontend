@@ -4,16 +4,26 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import './css/SignInUpForm.css'; 
 import axios from 'axios';
+import { CircularProgress, IconButton, InputAdornment, LinearProgress, TextField } from '@mui/material';
+import { Box } from 'lucide-react';
+import LoadingSpinner from './LoadingSpinner';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import { RemoveRedEye } from '@mui/icons-material';
 
 const baseUrl = import.meta.env.VITE_BASE_URL; 
 
 const SignInUpForm = ({ onSignIn }) => {
   const [rightPanelActive, setRightPanelActive] = useState(false);
-  const [signUpData, setSignUpData] = useState({ email: '', username: '', role: '', password: '' });
+  const [signUpData, setSignUpData] = useState({ email: '', username: '', role:"student", password: '' });
   const [signInData, setSignInData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState('')
+  
+  const [errorCondition, setErrorCondition] = useState ();;
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate(); 
 
@@ -22,12 +32,14 @@ const SignInUpForm = ({ onSignIn }) => {
     if (savedToken) setToken(savedToken);
   }, []);
 
-  const handleSignUpClick = () => setRightPanelActive(true);
-  const handleSignInClick = () => setRightPanelActive(false);
+  const handleSignUpClick = () => {setRightPanelActive(true); setError('')}
+  const handleSignInClick = () => {setRightPanelActive(false); setError('')}
 
   const handleSignUpChange = (e) => {
     const { name, value } = e.target;
-    setSignUpData({ ...signUpData, [name]: value });
+      setSignUpData({ ...signUpData, [name]: value });
+    
+    
   };
 
   const handleSignInChange = (e) => {
@@ -35,23 +47,33 @@ const SignInUpForm = ({ onSignIn }) => {
     setSignInData({ ...signInData, [name]: value });
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+  
   const handleSignUpSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
+    
     try {
       const response = await axios.post(`${baseUrl}/auth/signup`, signUpData);
       console.log("Sign-Up successful:", response.data);
-
-      if (response.data.token) {
-        setToken(response.data.token);
-        sessionStorage.setItem('token', JSON.stringify(response.data.token));
-      }
+      setRightPanelActive(false);
+      setError('');
+      setErrorCondition(response.status)
     } catch (error) {
-      setError('Sign Up failed. Please try again.');
+      if (error.response.status === 400) {
+        setError('Email already in use. Please try again.');
+      } else {
+        setError('Sign Up failed. Please try again.');
+      }
+      console.error('Sign-Up error:', error);
       console.error(error);
+      
     } finally {
       setIsLoading(false);
+     
+     
     }
   };
 
@@ -72,7 +94,7 @@ const SignInUpForm = ({ onSignIn }) => {
         },
       });
       console.log('Sign-In successful:', response.data);
-
+      
       if (response.data.token) {
         setToken(response.data.token); 
         sessionStorage.setItem('token', JSON.stringify(response.data.token));
@@ -87,39 +109,66 @@ const SignInUpForm = ({ onSignIn }) => {
           : `Sign In failed: ${error.response.data.message}`);
       } else {
         console.error('Error:', error.message);
-        setError('Sign In failed: Network error.');
+        setError('Sign In failed.');
       }
     } finally {
       setIsLoading(false);
     }
   };
 
+  if(isLoading){
+    return (
+      <LoadingSpinner name={signInData.email}/>
+    );
+  }
+
   return (
     
      
     <div className={`container ${rightPanelActive ? 'right-panel-active' : ''}`} id="container">
       <div className="form-container sign-up-container">
-        <form onSubmit={handleSignUpSubmit}>
-          <h1>Create Account</h1>
-          <span>or use your email for registration</span>
-          <input type="text" name="email" placeholder="Email" onChange={handleSignUpChange} required />
-          <input type="text" name="username" placeholder="Username" onChange={handleSignUpChange} required />
-          <input type="text" name="role" placeholder="Role" onChange={handleSignUpChange} required />
-          <input type="password" name="password" placeholder="Password" onChange={handleSignUpChange} required />
-          <button type="submit" disabled={isLoading}>Sign Up</button>
+        <form onSubmit={handleSignUpSubmit} autoComplete="off">
+          <h1 style={{ marginTop: 10 }}>Create Account</h1>
+         
+          <input className='emailInput' type="text" name="email" placeholder="Email" onChange={handleSignUpChange} required  />
+          <input type="text" name="username" placeholder="Enter Username"  autoComplete="off" onChange={handleSignUpChange} required style={{ marginTop: 20 }}/>
+          <input type="password" name="password" placeholder="Password" onChange={handleSignUpChange} required style={{ marginTop: 20 }}/>
+          <button className='signupBtnSbt' type="submit" disabled={isLoading} >Sign Up</button>
           {error && <p className="error">{error}</p>}
         </form>
       </div>
 
       <div className="form-container sign-in-container">
-        <form onSubmit={handleSignInSubmit}>
+        <form onSubmit={handleSignInSubmit} >
           <img src="/src/assets/componentsRes/hkotiskLogo.png" alt="Logo" className='Logo' />
           <h1 className='sign-in-text'>Sign in</h1>
           <div className='marg'></div>
-          <input type="email" name="email" placeholder="Email" onChange={handleSignInChange} required />
-          <input type="password" name="password" placeholder="Password" onChange={handleSignInChange} required />
+          <TextField className='emailIn'type="email" size='small' name="email" placeholder="Email" onChange={handleSignInChange} required sx={{mt:2}}/>
+          <TextField className='password'
+                type={showPassword ? "text" : "password"}
+                name="password"
+                size='small'
+                placeholder="Enter your password"
+                onChange={handleSignInChange}
+                sx={{mt:3.5}}
+               
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={togglePasswordVisibility}
+                        edge="end"
+                      >
+                    {showPassword ? <VisibilityOffIcon /> : <RemoveRedEye/>}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+      
           <div className='marg'></div>
-          <button type="submit" disabled={isLoading}>Sign In</button>
+          <button type="submit" disabled={isLoading} style={{marginTop:10}}>Sign In</button>
           {error && <p className="error">{error}</p>}
         </form>
       </div>

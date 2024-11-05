@@ -9,16 +9,22 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Alert, Snackbar } from '@mui/material';
+import { AlignJustify } from 'lucide-react';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
+
 
 export default function MyCart() {
   const [myCart, setMyCart] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [token, setToken] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [checkout, setCheckout] = useState(false);
-  const navigate = useNavigate();
+  const [isDeleted, setIsDeleted] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(0.00);
+
+  const [orderData, setOrderData] = useState({ orderBy: '', orderStatus: '', products: ''});
+    
 
   useEffect(() => {
     const savedToken = sessionStorage.getItem('token');
@@ -31,8 +37,9 @@ export default function MyCart() {
 
   useEffect(() => {
     if (token) fetchData(`${baseUrl}/user/cart`);
-    
-  }, [token]);
+    setIsDeleted(false);
+  
+  }, [token,drawerOpen,isDeleted,isUpdated]);
 
   const fetchData = async (url) => {
     try {
@@ -42,6 +49,7 @@ export default function MyCart() {
       if (response.status === 200) {
         setMyCart(response.data.oblist);
       }
+      console.log("Fetching Data")
     } catch (error) {
       console.error(`Error fetching data:`, error);
     }
@@ -54,37 +62,21 @@ export default function MyCart() {
       setOpenSnackbar(true);
       return;
     }
-  
     try {
-      const response = await axios.post(`${baseUrl}/user/order`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.post(
+        `${baseUrl}/user/order`,
+        orderData,
+        { headers: { Authorization: `Bearer ${token}` } })
+        console.log("CheckOut successful:", response.data);
+        setIsDeleted(true);
+          
        console.log(response)
     } catch (error) {
+      
       console.error("Error during checkout:", error);
-    } finally {
-      setCheckout(false); 
-     
-    }
+    } 
   };
   
-
-  const deleteItems = () => {
-    myCart.forEach((cartItem) => handleRemoveItem(cartItem.cartId));
-    setMyCart([]); // Clear cart locally after deletion
-  };
-
-  const handleRemoveItem = async (itemId) => {
-    try {
-      const response = await axios.delete(`${baseUrl}/user/cart?cartId=${itemId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMyCart((prevCart) => prevCart.filter((item) => item.cartId !== itemId));
-      console.log("Item removed from cart:", response.data);
-    } catch (error) {
-      console.error("Error removing item:", error);
-    }
-  };
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
@@ -95,7 +87,15 @@ export default function MyCart() {
     if (reason === 'clickaway') return;
     setOpenSnackbar(false);
   };
+  const calculateTotalPrice = () => {
+    return myCart.reduce((total, cart) => total + cart.price * cart.quantity, 0);
+  };
 
+  useEffect(() => {
+    setTotalPrice(calculateTotalPrice());
+      setIsUpdated(false);
+  }, [myCart,isUpdated]);
+  
   const CartList = () => (
     <Box sx={{ width: 450, marginTop: 8 }} role="presentation">
       {myCart.map((cart) => (
@@ -106,20 +106,29 @@ export default function MyCart() {
           itemQuantity={cart.quantity}
           itemPrice={cart.price}
           myToken={token}
+          setIsDeleted={setIsDeleted}
+          setIsUpdated={setIsUpdated}
         />
+        
       ))}
       <Divider sx={{ marginTop: 8 }} />
-      Total Price
-      <Button variant="contained" onClick={handleOrderRequest}>
+      <div style={{
+          display: 'flex',
+          justifyContent: 'space-between', // or 'center', 'flex-start', etc.
+          alignItems: 'center',
+      }}>
+      Total Price : {totalPrice.toFixed(2)}
+      <Button variant="contained" onClick={handleOrderRequest} sx={{mr:2, mt:2}}>
         Check Out
       </Button>
+      </div>
     </Box>
   );
 
   return (
     <div>
-      <Button onClick={toggleDrawer(true)}>
-        <ShoppingCartIcon />
+      <Button onClick={toggleDrawer(true)}sx={{mt:0.6}}>
+        <ShoppingCartIcon  size='large'/>
       </Button>
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
         <CartList />
