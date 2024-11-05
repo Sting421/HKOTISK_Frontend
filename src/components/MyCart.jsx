@@ -7,9 +7,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MyCartItemCard from './MyCartItemCard';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { Alert, Snackbar } from '@mui/material';
-import { AlignJustify } from 'lucide-react';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -23,7 +21,7 @@ export default function MyCart() {
   const [isUpdated, setIsUpdated] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0.00);
 
-  const [orderData, setOrderData] = useState({ orderBy: '', orderStatus: '', products: ''});
+  const [orderData] = useState([]);
     
 
   useEffect(() => {
@@ -77,7 +75,6 @@ export default function MyCart() {
     } 
   };
   
-
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
     setDrawerOpen(open);

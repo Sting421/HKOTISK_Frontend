@@ -10,7 +10,6 @@ import FastfoodIcon from '@mui/icons-material/Fastfood';
 import InfoIcon from '@mui/icons-material/Info';
 import MyItemCard from './MyItemCard';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import axios from 'axios';
 import './css/dashboard.css'; 
