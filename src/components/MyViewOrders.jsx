@@ -84,14 +84,14 @@ function MyViewOrders(props) {
         </Box>):(
 
         <div>
-          <Typography variant="h5" gutterBottom paddingLeft={50}>Order List</Typography>
+          <Typography variant="h5" gutterBottom >Order List</Typography>
           {orderList.length > 0 ? (
-            <Box display="grid" paddingLeft={50} gridTemplateColumns="repeat(auto-fill, minmax(700px, 1fr))" gap={4}>
+            <Box display="ruby" gridTemplateColumns="repeat(auto-fill, minmax(700px, 1fr))" gap={10}>
               {orderList
                 .filter(order => order.orderStatus !== 'DONE')
                 .map(order => (
-                  <Card key={order.orderId} variant="outlined" sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <CardContent>
+                  <Card key={order.orderId} variant="outlined" sx={{ display: 'flex', flexDirection: 'column', height:"500px", width:"400px", paddingRight:"10px"}}>
+                    <CardContent sx={{ flexGrow: 1 }}>
                     <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 2 }}>
                       <span>
                           <Typography variant="h5">Order No: {order.orderId}</Typography>
@@ -135,21 +135,23 @@ function MyViewOrders(props) {
                       ) : (
                         <Typography variant="body2">No products in this order.</Typography>
                       )}
-                      <Divider/>
+                    
+                    </CardContent>
+                    <Divider/>
                       <Typography variant="body1" sx={{ marginTop: 2, fontWeight: 'bold' }}>
                       <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 2 }}>
                         <span style={{ fontSize: '20px' }}>Total Price:</span>
                         <span style={{ fontSize: '20px' }}>₱{order.products.reduce((sum, product) => sum + product.price * product.quantity, 0).toFixed(2)}</span>
                       </Box>
                       </Typography>
-                    </CardContent>
-                    <CardActions sx={{ justifyContent: 'center' }}>
+                    <CardActions sx={{ justifyContent: 'center' }}>      
                       <Button 
                         variant="contained"
                         sx={{
                             backgroundColor: '#8B4543', 
                             '&:hover': {
                               backgroundColor: '#693432', 
+                              
                             },
                           }}
                         fullWidth
