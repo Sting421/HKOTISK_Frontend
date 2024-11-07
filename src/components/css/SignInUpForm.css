@@ -12,9 +12,7 @@ body {
   font-family: 'Montserrat', sans-serif;
   height: 100vh;
   margin: 0;
-  /* background: #883c40;
-  background: -webkit-linear-gradient(89deg, #883c40 0%, rgba(242, 194, 0, 0.61) 50%, #883c40 100%);
-  background: linear-gradient(89deg, #883c40 0%, rgba(242, 194, 0, 0.61) 50%, #883c40 100%); */
+ 
 }
 h1.sign-in-text {
     color: #883C40;

@@ -2,6 +2,7 @@ import { Button } from "@mui/material";
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 const baseUrl = import.meta.env.VITE_BASE_URL; 
 
@@ -36,7 +37,7 @@ const MyLogOut = () => {
   return (
     <>
       <Button onClick={handleSignOut} disabled={isLoading}>
-        {isLoading ? 'Signing out...' : 'Sign Out'}
+        <ExitToAppIcon/>
       </Button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}

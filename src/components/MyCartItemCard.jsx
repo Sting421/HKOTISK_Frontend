@@ -1,7 +1,17 @@
 import { useState } from 'react';
-import { Button, Card, CardContent, Grid, IconButton, Typography } from '@mui/material';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  IconButton,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
+} from '@mui/material';
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import LoadingSpinner from './LoadingSpinner';
@@ -10,13 +20,14 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 function MyCartItemCard(props) {
   const [quantity, setQuantity] = useState(props.itemQuantity);
-  const [size, setSize] = useState('Small');
+  const [size, setSize] = useState(props.itemSize);
   const [token, setToken] = useState(props.myToken);
   const [errorMessage, setErrorMessage] = useState('');
+  const [productSize, setProductSize] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [cartData, setCartData] = useState({ id: props.itemId, quantity });
+  const [cartData, setCartData] = useState({ id: props.itemId, quantity,productSize});
 
  
   const incrementQuantity = () => {
@@ -38,7 +49,6 @@ function MyCartItemCard(props) {
      
       return newQuantity;
     });
-    props.setIsUpdated(true);
     handleQuantityUpdate();
     
   };
@@ -49,6 +59,7 @@ function MyCartItemCard(props) {
   // Update cart quantity on the server
   const handleQuantityUpdate = async () => {
     setIsLoading(true);
+    console.log("This is size: ",productSize);
     try {
       const response = await axios.put(
         `${baseUrl}/user/cart`,
@@ -67,8 +78,13 @@ function MyCartItemCard(props) {
       setIsLoading(false);
     }
   };
-  
+  const handleSizeChange = (event) => {
+    
+    setSize(event.target.value); 
+    setProductSize(event.target.value); 
+    handleQuantityUpdate();
 
+  };
   const handleRemoveItem = async (e) => {
     e.preventDefault();
     try {
@@ -88,100 +104,71 @@ function MyCartItemCard(props) {
   };
 
   return (
-    <Card 
-      sx={{ 
-        borderRadius: '4%', 
-        width: '30rem', 
-        backgroundColor: 'inherit', 
-        boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', 
-        maxHeight: '400px', 
-        maxWidth: '500px', 
-        minHeight: '200px', 
-        minWidth: '100px' 
-      }}
-    >
-      <CardContent>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            {/* Other content can go here */}
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="h6">{props.itemName}</Typography>
-            <Typography color="#883C40">This is Item quantity: {quantity}</Typography>
-          </Grid>
-        </Grid>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '30px', marginLeft: "50px" }}>
-              <IconButton size="small" onClick={decrementQuantity}>
-                <RemoveCircleOutlineIcon fontSize="medium" />
+    <Card sx={{ width: '100%', maxWidth: 390 }}>
+      <CardContent sx={{ p: 3 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6">{props.itemName}</Typography>
+          <Typography variant="h6">₱ {props.itemPrice.toFixed(2)}</Typography>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
+          <div>
+            <Typography variant="body2" color="text.secondary">Quantity:</Typography>
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: 4 }}>
+              <IconButton onClick={decrementQuantity} aria-label="Decrease quantity" size="small">
+                <RemoveIcon fontSize="small" />
               </IconButton>
-              <Typography>{quantity}</Typography>
-              <IconButton size="small" onClick={incrementQuantity}>
-                <AddCircleOutlineRoundedIcon fontSize="medium" />
+              <Typography variant="body2" sx={{ width: 40, textAlign: 'center' }}>
+                {quantity}
+              </Typography>
+              <IconButton onClick={incrementQuantity} aria-label="Increase quantity" size="small">
+                <AddIcon fontSize="small" />
               </IconButton>
             </div>
-            <Typography color="#883C40">Total Price: {(quantity * props.itemPrice).toFixed(2)}</Typography>
-            <Button
-              variant={'outlined'}
-              size="small"
-              sx={{
-                borderRadius: '0% 25% 25% 25% / 54% 54% 0% 46%',
-                backgroundColor: '#883C40',
-                color: '#757575',
-              }}
-              onClick={handleRemoveItem}
-            >
-              Remove Item
-            </Button>
-            {errorMessage && <Typography color="error">{errorMessage}</Typography>}
-          </Grid>
-          <Grid item xs={6}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Grid item xs={6}>
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '20px', marginLeft: '15px' }}>
-                  <Typography variant="body2" style={{ fontWeight: '500', marginTop: '5px' }}>Size</Typography>
-                  {['Small', 'Large'].map((option) => (
-                    <Button
-                      key={option}
-                      variant={size === option ? 'contained' : 'outlined'}
-                      size="small"
-                      sx={{
-                        borderRadius: '0% 25% 25% 25% / 54% 54% 0% 46%',
-                        backgroundColor: size === option ? '#757575' : 'transparent',
-                        color: size === option ? '#ffffff' : '#757575',
-                        borderColor: '#757575',
-                        '&:hover': {
-                          backgroundColor: size === option ? '#616161' : 'rgba(117, 117, 117, 0.1)',
-                          borderColor: size === option ? '#616161' : '#757575',
-                        },
-                      }}
-                      onClick={() => setSize(option)}
-                    >
-                      {option}
-                    </Button>
-                  ))}
-                </div>
-              </Grid>
-            </div>
-            <Grid item xs={12}>
-              {/* Additional content can go here */}
-            </Grid>
-          </Grid>
-        </Grid>
+          </div>
+
+          <div>
+          <FormControl size="small">
+              <InputLabel>Size</InputLabel>
+              <Select
+                label="Size"
+                value={size}  // Use the local state for size
+                onChange={handleSizeChange}
+                sx={{ minWidth: 90 }}
+              >
+                <MenuItem value='S'>Small</MenuItem>
+                <MenuItem value='M'>Medium</MenuItem>
+                <MenuItem value='L'>Large</MenuItem>
+              </Select>
+            </FormControl>
+
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+          <Button
+            variant="text"
+            color="error"
+            sx={{ fontSize: '0.875rem', textTransform: 'none' }}
+            onClick={handleRemoveItem}
+          >
+            Remove
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
+
 }
 
 export default MyCartItemCard;
 
 MyCartItemCard.propTypes = {
-  itemId:PropTypes.string.isRequired,
+  itemId:PropTypes.number.isRequired,
   itemName: PropTypes.string.isRequired,
   itemQuantity: PropTypes.number,
-  setIsDeleted: PropTypes.bool,
-  setIsUpdated: PropTypes.bool,
+  itemSize: PropTypes.string,
+  setIsDeleted: PropTypes.func,
   itemPrice:PropTypes.number.isRequired,
   myToken:PropTypes.string.isRequired
 };

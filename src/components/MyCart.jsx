@@ -7,7 +7,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MyCartItemCard from './MyCartItemCard';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Alert, Snackbar } from '@mui/material';
+import { Alert, Card, CardContent, Snackbar, Typography } from '@mui/material';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -18,7 +18,6 @@ export default function MyCart() {
   const [token, setToken] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
-  const [isUpdated, setIsUpdated] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0.00);
 
   const [orderData] = useState([]);
@@ -37,7 +36,7 @@ export default function MyCart() {
     if (token) fetchData(`${baseUrl}/user/cart`);
     setIsDeleted(false);
   
-  }, [token,drawerOpen,isDeleted,isUpdated]);
+  }, [token,drawerOpen,isDeleted]);
 
   const fetchData = async (url) => {
     try {
@@ -90,11 +89,10 @@ export default function MyCart() {
 
   useEffect(() => {
     setTotalPrice(calculateTotalPrice());
-      setIsUpdated(false);
-  }, [myCart,isUpdated]);
+  }, [myCart]);
   
   const CartList = () => (
-    <Box sx={{ width: 450, marginTop: 8 }} role="presentation">
+    <Box sx={{ width: 400, marginTop: 8 }} role="presentation">
       {myCart.map((cart) => (
         <MyCartItemCard
           key={cart.cartId}
@@ -102,23 +100,35 @@ export default function MyCart() {
           itemName={cart.productName}
           itemQuantity={cart.quantity}
           itemPrice={cart.price}
+          itemSize={cart.productSize}
           myToken={token}
           setIsDeleted={setIsDeleted}
-          setIsUpdated={setIsUpdated}
         />
         
       ))}
       <Divider sx={{ marginTop: 8 }} />
-      <div style={{
-          display: 'flex',
-          justifyContent: 'space-between', // or 'center', 'flex-start', etc.
-          alignItems: 'center',
-      }}>
-      Total Price : {totalPrice.toFixed(2)}
-      <Button variant="contained" onClick={handleOrderRequest} sx={{mr:2, mt:2}}>
-        Check Out
-      </Button>
-      </div>
+        <Card sx={{ maxWidth: 350, width: '100%' }}>
+        <CardContent sx={{ p: 3 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <Typography variant="h6" component="span" fontWeight="medium">
+              Total
+            </Typography>
+            <Typography variant="h6" component="span" fontWeight="medium">
+            ₱ {totalPrice.toFixed(2)}
+            </Typography>
+          </div>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            size="large" 
+            fullWidth 
+            sx={{ backgroundColor: '#883c40', '&:hover': { backgroundColor: '#c7565b' } }}
+            onClick={handleOrderRequest}
+          >
+            Checkout
+          </Button>
+        </CardContent>
+      </Card>
     </Box>
   );
 
@@ -138,3 +148,4 @@ export default function MyCart() {
     </div>
   );
 }
+

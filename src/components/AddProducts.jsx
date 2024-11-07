@@ -52,6 +52,16 @@ export default function AddProducts() {
     const handleCategoryChange = (event, value) => {
         setProductData((prevData) => ({ ...prevData, category: value ? value.label : '' }));
     };
+    const clearProductData = () => {
+        setProductData({
+          productId: 0,
+          description: '',
+          productName: '',
+          price: 0,
+          quantity: 0,
+          sizes: ''
+        });
+      };
 
     const categoryOptions = [
         { label: 'Food' },
@@ -71,6 +81,7 @@ export default function AddProducts() {
                 productData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+            clearProductData();
             console.log("Product successfully Added:", response.data);
         } catch (error) {
             setError('Failed to add product. Please try again.');

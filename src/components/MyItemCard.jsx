@@ -9,9 +9,10 @@ import { postRequest } from '../utils/api';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-const sizeOptions = ['S','M', 'L'];
+
 
 function MyItemCard(props) {
+  const sizeOptions = props.itemSize;
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState('');
   const [error, setError] = useState('');
@@ -73,6 +74,12 @@ function MyItemCard(props) {
   const resetErrorMessage =() =>{
     setError('');
   }
+  useEffect(() => {
+    if (sizeOptions.length === 1) {
+      setSize('S');
+    }
+  }, [sizeOptions]); 
+   
 
 
   return (
@@ -114,8 +121,10 @@ function MyItemCard(props) {
               <Grid item xs={6}>
                 {props.itemSize != null && (
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '20px', marginLeft: '15px' }}>
+                    {sizeOptions.length > 1 &&
                     <Typography variant="body2" style={{ fontWeight: '500', marginTop: '5px' }}>Size</Typography>
-                    {sizeOptions.map(option => (
+                    }
+                    {sizeOptions.length > 1 && sizeOptions.map(option => (
                       <Button
                         key={option}
                         variant={size === option ? 'contained' : 'outlined'}

@@ -2,16 +2,13 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useMemo } from 'react';
 import { Alert, Button, Card, CardContent, Grid, IconButton, InputAdornment, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import axios from 'axios';
-import { postRequest } from '../utils/api';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const sizeOptions = ['S','M', 'L'];
 
-function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescription, itemSize, itemQuantity,myToken }) {
+function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescription, itemSize, itemQuantity,myToken,isUpdated}) {
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState('S');
   const [error, setError] = useState('');
@@ -22,12 +19,6 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
 
   const [open, setOpen] = useState(false);
 
-  const itemData = useMemo(() => ({
-    productId: parseInt(productId, 10),
-    quantity,
-    price: parseFloat(price),
-    size:String(size), 
-  }), [productId,size, quantity, price]);
 
 
   const handleProductChange = (e) => {

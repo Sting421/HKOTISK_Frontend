@@ -116,15 +116,21 @@ function MyDashboard({ window }) {
         />
       ))}
       {pathname === '/Staff/AddProducts' && <AddProducts baseUrl={baseUrl} getToken={token} />}
-      {pathname === '/Staff/ViewOrders' && <MyViewOrders/>}
+      {pathname === '/Staff/ViewOrders' && <MyViewOrders token={token}/>}
     </Box>
   ), [pathname, products, myCart, token]);
   
-  function MyCartFunc(){
-    return(
-      <MyCart userCart={myCart} sx={{ display: 'flex', justifyContent: 'center' }} />
+  function MyCartFunc() {
+    return (
+      <>
+        <MyCart userCart={myCart} sx={{ display: 'flex', justifyContent: 'center' }} />
+        <div><MyLogOut /></div>
+      </>
     );
   }
+  
+ 
+  
   return (
     <AppProvider
       navigation={NAVIGATION}
@@ -134,10 +140,12 @@ function MyDashboard({ window }) {
       window={typeof window !== 'undefined' ? window() : undefined}
       
     >
-      <DashboardLayout  slots={{ toolbarActions: MyCartFunc }} sx={{mt:5}}>
+     <DashboardLayout 
+      slots={{ toolbarActions: MyCartFunc }} 
+      sx={{ height: "100vh" }}
+    >
         <DemoPageContent />
       </DashboardLayout>
-      <MyLogOut />
     </AppProvider>
   );
 }
