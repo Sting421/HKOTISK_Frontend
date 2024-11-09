@@ -1,33 +1,32 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { useState, useEffect, useMemo } from 'react';
-import { Alert, Button, Card, CardContent, Grid, IconButton, InputAdornment, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { Alert, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, InputAdornment, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-const sizeOptions = ['S','M', 'L'];
+const sizeOptions = ['S', 'M', 'L'];
 
-function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescription, itemSize, itemQuantity,myToken,isUpdated}) {
+function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescription, itemSize, itemQuantity, myToken }) {
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState('S');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState(myToken);
   const [productData, setProductData] = useState(
-    { productId: parseInt(productId,10), description: itemDescription, productName: itemName, price: parseFloat(price) ,quantity:itemQuantity, sizes : itemSize});
+    { productId: parseInt(productId, 10), description: itemDescription, productName: itemName, price: parseFloat(price), quantity: itemQuantity, sizes: itemSize });
 
   const [open, setOpen] = useState(false);
-
-
+  const [openDialog, setOpenDialog] = useState(false);
+  const [delFeild, setDelFeild] = useState('');
 
   const handleProductChange = (e) => {
     const { name, value } = e.target;
     setProductData({ ...productData, [name]: value });
   };
-  const handleDelete = async (e) => {
-    e.preventDefault();
 
+  const handleDelete = async (e) => {
     try {
       const itemIdInt = parseInt(productData.productId, 10);
       const response = await axios.delete(`${baseUrl}/staff/product?productId=${itemIdInt}`, {
@@ -38,8 +37,7 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
       console.log(response);
       setOpen(true);
     } catch (error) {
-      setError('Failed to add to cart. Please try again.');
-     
+      setError('Failed to delete product. Please try again.');
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -51,21 +49,20 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
     setIsLoading(true);
 
     if (!token) {
-      setError('You must be logged in to add items to the cart.');
+      setError('You must be logged in to update the product.');
       setIsLoading(false);
       return;
     }
 
     const requestBody = {
-     
-        productId: parseInt(productData.productId,10),
-        description: productData.description,
-        productName: productData.productName,
-        price: parseFloat(productData.price),
-        quantity: productData.quantity,
-        category: "Food",
-        sizes:productData.sizes
-      };
+      productId: parseInt(productData.productId, 10),
+      description: productData.description,
+      productName: productData.productName,
+      price: parseFloat(productData.price),
+      quantity: productData.quantity,
+      category: "Food",
+      sizes: productData.sizes
+    };
 
     try {
       const response = await axios.put(
@@ -74,24 +71,37 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("Update successfully:", response.data);
-      console.log(requestBody);
       setOpen(true);
     } catch (error) {
-      setError('Failed to add to cart. Please try again.');
-      console.log(requestBody)
+      setError('Failed to update product. Please try again.');
       console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
-  const handleClose = (reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
 
+  const handleClose = () => {
     setOpen(false);
   };
 
+  const handleClickOpen = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDelete = () => {
+    setOpenDialog(false);
+    setError('');
+  };
+
+  const handleAgreeDelete = () => {
+    if (delFeild === itemName) {
+      handleDelete();
+      setError('');
+      setOpenDialog(false);
+    } else {
+      setError('Input mismatch');
+    }
+  };
 
   return (
     <Card sx={{ borderRadius: '4%', width: '30rem', backgroundColor: 'inherit', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', maxHeight: '400px', maxWidth: '600px', minHeight: '300px', minWidth: '600px' }}>
@@ -105,125 +115,143 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
             />
           </Grid>
           <Grid item xs={6}>
-          <TextField
-                InputProps={{
-                    startAdornment: <InputAdornment position="start">Name:</InputAdornment>
-                }}
-                       hiddenLabel
-                        id="outlined-size-small"
-                        defaultValue={productData.productName} 
-                        name='productName'
-                        onChange={handleProductChange}
-                        size="small"
-                        sx={{ width: '200px' }}
-                        />
-        
-             <TextField
-                    InputProps={{
-                        startAdornment: <InputAdornment position="start">Price:</InputAdornment>
-                    }}
-                    hiddenLabel
-                    id="outlined-size-small"
-                    name="price"
-                    defaultValue={productData.price}
-                    onChange={handleProductChange}
-                    size="small"
-                    sx={{ width: '130px' }}
-                />
-          
-          <div>
-          <TextareaAutosize
-            id="outlined-size-small"
-            name="description"
-      
-            defaultValue={productData.description}
-            onChange={handleProductChange}
-            rows={4}
-            cols={36}
-            sx={{ fontFamily: "'IBM Plex Sans', sans-serif" }} 
-          />
-          </div>
-           
             <TextField
-             InputProps={{
+              InputProps={{
+                startAdornment: <InputAdornment position="start">Name:</InputAdornment>
+              }}
+              hiddenLabel
+              id="outlined-size-small"
+              defaultValue={productData.productName}
+              name='productName'
+              onChange={handleProductChange}
+              size="small"
+              sx={{ width: '200px' }}
+            />
+            <TextField
+              InputProps={{
+                startAdornment: <InputAdornment position="start">Price:</InputAdornment>
+              }}
+              hiddenLabel
+              id="outlined-size-small"
+              name="price"
+              defaultValue={productData.price}
+              onChange={handleProductChange}
+              size="small"
+              sx={{ width: '130px' }}
+            />
+            <TextareaAutosize
+              id="outlined-size-small"
+              name="description"
+              defaultValue={productData.description}
+              onChange={handleProductChange}
+              rows={4}
+              cols={36}
+              sx={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
+            />
+            <TextField
+              InputProps={{
                 startAdornment: <InputAdornment position="start">Quantity:</InputAdornment>
-            }}
-                hiddenLabel
-                id="outlined-size-small"
-                name='quantity'
-                defaultValue={productData.quantity}
-                onChange={handleProductChange}
-                size="small"
-                sx={{ width: '130px' }}
+              }}
+              hiddenLabel
+              id="outlined-size-small"
+              name='quantity'
+              defaultValue={productData.quantity}
+              onChange={handleProductChange}
+              size="small"
+              sx={{ width: '130px' }}
             />
           </Grid>
         </Grid>
         <Grid container spacing={2}>
           <Grid item xs={6}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '30px', marginLeft: "50px" }}>
-             
-            </div>
+            {itemSize != null && (
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '20px', marginLeft: '15px' }}>
+                <Typography variant="body2" style={{ fontWeight: '500', marginTop: '5px' }}>Size</Typography>
+                {sizeOptions.map(option => (
+                  <Button
+                    key={option}
+                    variant={size === option ? 'contained' : 'outlined'}
+                    size="small"
+                    sx={{
+                      borderRadius: '0% 25% 25% 25% / 54% 54% 0% 46%',
+                      backgroundColor: size === option ? '#757575' : 'transparent',
+                      color: size === option ? '#ffffff' : '#757575',
+                      paddingRight: '30px',
+                      paddingLeft: '30px',
+                      borderColor: '#757575',
+                      '&:hover': {
+                        backgroundColor: size === option ? '#616161' : 'rgba(117, 117, 117, 0.1)',
+                        borderColor: size === option ? '#616161' : '#757575',
+                      },
+                    }}
+                    onClick={() => setSize(option)}
+                  >
+                    {option}
+                  </Button>
+                ))}
+              </div>
+            )}
           </Grid>
           <Grid item xs={6}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Grid item xs={6}>
-                {itemSize != null && (
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '20px', marginLeft: '15px' }}>
-                    <Typography variant="body2" style={{ fontWeight: '500', marginTop: '5px' }}>Size</Typography>
-                    {sizeOptions.map(option => (
-                      <Button
-                        key={option}
-                        variant={size === option ? 'contained' : 'outlined'}
-                        size="small"
-                        sx={{
-                          borderRadius: '0% 25% 25% 25% / 54% 54% 0% 46%',
-                          backgroundColor: size === option ? '#757575' : 'transparent',
-                          color: size === option ? '#ffffff' : '#757575',
-                          paddingRight: '30px',
-                          paddingLeft: '30px',
-                          borderColor: '#757575',
-                          '&:hover': {
-                            backgroundColor: size === option ? '#616161' : 'rgba(117, 117, 117, 0.1)',
-                            borderColor: size === option ? '#616161' : '#757575',
-                           
-                          },
-                        }}
-                        onClick={() => setSize(option)}
-                      >
-                        {option}
-                      </Button>
-                    ))}
-                  </div>
-                )}
-              </Grid>
-            </div>
-            <Grid item xs={12}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginLeft: '10px', marginTop: '9px' }}>
-                <Button
-                  variant="contained"
-                  sx={{ borderRadius: '10% 10% 10% 10% / 50% 50% 50% 50%', backgroundColor: '#883C40', '&:hover': { backgroundColor: '#6f2b2f' }, paddingLeft: '40px', paddingRight: '40px' }}
-                  onClick={handleUpdate}
+            <Button
+              variant="contained"
+              sx={{ borderRadius: '10% 10% 10% 10% / 50% 50% 50% 50%', backgroundColor: '#883C40', '&:hover': { backgroundColor: '#6f2b2f' }, paddingLeft: '40px', paddingRight: '40px' }}
+              onClick={handleUpdate}
+            >
+              Update
+            </Button>
+            <Button
+              variant="outlined"
+              sx={{ marginTop: '10px' }}
+              onClick={handleClickOpen}
+            >
+              Remove
+            </Button>
+            <Dialog 
+              open={openDialog} 
+              onClose={handleCloseDelete} 
+              aria-labelledby="dialog-title"
+              aria-describedby="dialog-description"
+            >
+              <DialogTitle id="dialog-title">Delete Item</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="dialog-description">
+                  Are you sure you want to delete item {itemName}?<br /> To confirm, type &quot;{itemName}&quot; in the box below.
+                </DialogContentText>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="delFeild"
+                  label="Confirm Name"
+                  fullWidth
+                  variant="standard"
+                  value={delFeild}
+                  onChange={(e) => setDelFeild(e.target.value)}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button 
+                  onClick={handleCloseDelete}
+                  tabIndex={openDialog ? 0 : -1}
                 >
-                  Update
+                  Cancel
                 </Button>
-                <Button
-                  variant="contained"
-                  sx={{ borderRadius: '10% 10% 10% 10% / 50% 50% 50% 50%', backgroundColor: '#883C40', '&:hover': { backgroundColor: '#6f2b2f' }, paddingLeft: '40px', paddingRight: '40px' }}
-                  onClick={handleDelete}
+                <Button 
+                  onClick={handleAgreeDelete}
+                  tabIndex={openDialog ? 0 : -1}
                 >
-                  Remove
+                  Delete
                 </Button>
-                <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
-                  <Alert  onClose={handleClose}  severity="success" variant="filled"  sx={{ width: '100%' }} >
-                    Product Updated
-                  </Alert>
-                </Snackbar>
-              </div>
-            </Grid>
+              </DialogActions>
+            </Dialog>
           </Grid>
         </Grid>
-        {error && <Typography color="error">{error}</Typography>}
       </CardContent>
+      <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+          Product updated successfully!
+        </Alert>
+      </Snackbar>
     </Card>
   );
 }

@@ -17,7 +17,7 @@ export default function AddProducts() {
     const [productData, setProductData] = useState({
         description: '',
         productName: '',
-        price: 0.0,       
+        prices: [],       
         quantity: 1,      
         sizes: [],
         category: '',
@@ -43,7 +43,15 @@ export default function AddProducts() {
                     : prevData.sizes.filter((size) => size !== value);
                 return { ...prevData, sizes: newSizes };
             });
-        } else {
+        }else if (name === 'price') {
+            setProductData((prevData) => {
+                const newPrices = checked
+                    ? [...prevData.prices, value]
+                    : prevData.prices.filter((price) => price !== value);
+                return { ...prevData,prices: newPrices };
+            });
+        }
+         else {
             // Update other fields normally
             setProductData((prevData) => ({ ...prevData, [name]: value }));
         }

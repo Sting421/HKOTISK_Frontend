@@ -62,7 +62,9 @@ function MyDashboard({ window }) {
   const [pathname, setPathname] = useState('/dashboard');
   const [token, setToken] = useState('');
   const [products, setProducts] = useState([]);
-  const [myCart, setMyCart] = useState([]);
+  const [filter, setFilter] = useState([]);
+ 
+
  
   useEffect(() => {
     const savedToken = sessionStorage.getItem('token');
@@ -73,9 +75,7 @@ function MyDashboard({ window }) {
 
   useEffect(() => {
     if (token) {
-      fetchData(`${baseUrl}/user/cart`, token, setMyCart);
       fetchData(`${baseUrl}/user/product`, token, setProducts);
-      
     }
   }, [pathname]);
 
@@ -89,10 +89,11 @@ function MyDashboard({ window }) {
     <Box sx={{ py: 4, display: 'flex', flexWrap: 'wrap', gap: '40px' }}>
       {pathname === '/dashboard' && <Typography>Welcome to the Dashboard</Typography>}
       {pathname === '/Snacks' && products.map(product => (
+        
         <MyItemCard
           key={product.productId}
           productId={parseInt(product.productId, 10)}
-          price={product.price}
+          price={product.prices}
           itemName={product.productName}
           itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
           itemDescription={product.description}
@@ -100,7 +101,9 @@ function MyDashboard({ window }) {
           itemQuantity={product.quantity}
           myToken={token}
         />
+       
       ))}
+
 
       {pathname === '/Staff/UpdateProducts' && products.map(product => (
         <MyUpdateProducts
@@ -118,12 +121,12 @@ function MyDashboard({ window }) {
       {pathname === '/Staff/AddProducts' && <AddProducts baseUrl={baseUrl} getToken={token} />}
       {pathname === '/Staff/ViewOrders' && <MyViewOrders token={token}/>}
     </Box>
-  ), [pathname, products, myCart, token]);
+  ), [pathname, products, token]);
   
   function MyCartFunc() {
     return (
       <>
-        <MyCart userCart={myCart} sx={{ display: 'flex', justifyContent: 'center' }} />
+        <MyCart sx={{ display: 'flex', justifyContent: 'center' }} />
         <div><MyLogOut /></div>
       </>
     );

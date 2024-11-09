@@ -1,190 +1,269 @@
-import { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
-import { Button, Checkbox, Card, CardContent, CardActions, Typography, Badge, Box, CircularProgress, Divider } from '@mui/material';
+import { Button, Checkbox, Card, CardContent, CardActions, Typography, Badge, Box, CircularProgress, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { AccessTime } from '@mui/icons-material';
+import PersonIcon from '@mui/icons-material/Person';
 
-
-const baseUrl = import.meta.env.VITE_BASE_URL; 
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 function MyViewOrders(props) {
-    
-    const [token] = useState(props.token);
+  const [token] = useState(props.token);
 
-    const [orderList, setOrderList] = useState([]);
-    const [isUpdated, setIsUpdated] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+  const [orderList, setOrderList] = useState([]);
+  const [isUpdated, setIsUpdated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-    const [checkedItems, setCheckedItems] = useState({});
+  const [checkedItems, setCheckedItems] = useState({});
+  const [openDialog, setOpenDialog] = useState({});
+  const prevOrderList = useRef([]);
 
-    const isAllChecked = (orderId, products) => {
-      return products.every(product => checkedItems[orderId]?.[product.cartId]);
-    };
+  const isAllChecked = (orderId, products) => {
+    return products.every(product => checkedItems[orderId]?.[product.cartId]);
+  };
 
-    const handleCheckboxChange = (orderId, cartId) => {
-      setCheckedItems(prevState => ({
-        ...prevState,
-        [orderId]: {
-          ...prevState[orderId],
-          [cartId]: !prevState[orderId]?.[cartId]
-        }
-      }));
-    };
+  const handleCheckboxChange = (orderId, cartId) => {
+    setCheckedItems(prevState => ({
+      ...prevState,
+      [orderId]: {
+        ...prevState[orderId],
+        [cartId]: !prevState[orderId]?.[cartId]
+      }
+    }));
+  };
 
-    useEffect(() => {
-      setIsLoading(true);
-      const fetchOrders = async () => {
-          try {
-              if(token){
-                const response = await axios.get(`${baseUrl}/staff/orders`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                    
-                });
-                setOrderList(response.data.orderlist);
-              }
-           
-          } catch (err) {
-             
-              console.error(err);
-          }finally{
-            setIsLoading(false);
+  useEffect(() => {
+    const fetchOrders = async () => {
+      
+      try {
+        if (token) {
+          const response = await axios.get(`${baseUrl}/staff/orders`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const newOrderList = response.data.orderlist;
+          console.log("Fetching orders......");
+  
+          // Check if the order list has changed
+          if (JSON.stringify(newOrderList) !== JSON.stringify(prevOrderList.current)) {
+            setIsLoading(true);
+            setOrderList(newOrderList);
+            prevOrderList.current = newOrderList;
           }
-      };
-
-      fetchOrders(); 
-      setIsUpdated(false);
-  }, [baseUrl, token,isUpdated]); 
-
- 
-    const handleUpdateOrder = async (id,email) => {
- 
-        try {
-            const response = await axios.post(`${baseUrl}/staff/order`,
-                {
-                orderId: id,
-                email: email,
-                orderStatus:'DONE'
-              }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            console.log("Update successful:", response.data);
-            setIsUpdated(true);
-        } catch (err) {
-            console.error(err);
-        }finally{
-          setIsLoading(false);
         }
+      } catch (err) {
+        console.error(err);
+      }finally{
+        setIsLoading(false);
+      }
     };
+    setIsLoading(false);
+   
+    fetchOrders();
+  
+   
+  }, [token]);
+  
 
-    return (
-      isLoading ? (
-        <Box sx={{ display: 'flex', mt:50, ml:100 }}>
-          <CircularProgress />
-        </Box>):(
+  const handleUpdateOrder = async (id, email, status) => {
+    try {
+      // Update the order status
+      const response = await axios.post(`${baseUrl}/staff/order`, {
+        orderId: id,
+        email: email,
+        orderStatus: status
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      console.log("Update successful:", response.data);
+  
+      // Reduce the quantity of the served products
+      // setOrderList(prevOrderList => prevOrderList.map(order => {
+      //   if (order.orderId === id) {
+      //     // Reduce the quantity for each product in the served order
+      //     const updatedProducts = order.products.map(product => ({
+      //       const response = await axios.put(`${baseUrl}/staff/product`, {
+      //         productId: product.productId,
+      //         quantity: quantity,
+              
+      //       }, {
+      //         headers: { Authorization: `Bearer ${token}` }
+      //       });
+      //     }));
+          
+      //     // Return updated order
+      //     return { ...order, products: updatedProducts };
+      //   }
+      //   return order;
+      // }));
+  
+      setIsUpdated(true);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleClickOpen = (orderId) => {
+    setOpenDialog(prevState => ({ ...prevState, [orderId]: true }));
+  };
 
-        <div>
-          <Typography variant="h5" gutterBottom >Order List</Typography>
-          {orderList.length > 0 ? (
-            <Box display="ruby" gridTemplateColumns="repeat(auto-fill, minmax(700px, 1fr))" gap={10}>
-              {orderList
-                .filter(order => order.orderStatus !== 'DONE')
-                .map(order => (
-                  <Card key={order.orderId} variant="outlined" sx={{ display: 'flex', flexDirection: 'column', height:"500px", width:"400px", paddingRight:"10px"}}>
-                    <CardContent sx={{ flexGrow: 1 }}>
+  const handleClose = (orderId) => {
+    setOpenDialog(prevState => ({ ...prevState, [orderId]: false }));
+  };
+
+  const handleAgree = (orderId, email) => {
+    handleUpdateOrder(orderId, email, 'CANCELED');
+    setOpenDialog(prevState => ({ ...prevState, [orderId]: false }));
+  };
+
+  return (
+    isLoading ? (
+      <Box sx={{ display: 'flex', mt: 50, ml: 100 }}>
+        <CircularProgress />
+      </Box>
+    ) : (
+      <div>
+        <Typography variant="h5" gutterBottom marginLeft={10}>Order List</Typography>
+        {orderList.length > 0 ? (
+          <Box display="flex" flexWrap="wrap" gap={5} marginLeft={10}>
+            {orderList
+              .filter(order => order.orderStatus === 'PENDING')
+              .map(order => (
+                <Card key={order.orderId} variant="outlined" sx={{ display: 'flex', flexDirection: 'column', height: "500px", width: "400px", paddingRight: "10px" }}>
+                  <CardContent sx={{ flexGrow: 1 }}>
                     <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 2 }}>
                       <span>
-                          <Typography variant="h5">Order No: {order.orderId}</Typography>
-                          <Typography variant="body2" color="textSecondary">Ordered By: {order.orderBy.replace(/@[\w.-]+$/, '')}</Typography>
-                      </span>
-                      <span style={{ fontSize: '18px', marginRight:'10px'}}>
-                            <Badge 
-                              color="warning"
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                marginTop: 1,
-                                backgroundColor: '#FFFF8F', 
-                                padding: '2px 8px', 
-                                borderRadius: '12px', 
-                              }}>
-                              <AccessTime sx={{ fontSize: 16, marginRight: 1 }} />
-                              {order.orderStatus}
-                            </Badge>
-                        </span>
+                        <Typography variant="h5" component="div">Order No: {order.orderId}</Typography>
+                        <Box display="flex" justifyContent="center" alignItems="center" width="100%">
+                          <Typography variant="body2" component="div" color="textSecondary" style={{ display: 'flex', alignItems: 'center' }}>
+                            <PersonIcon style={{ marginRight: '8px' }} />
+                              Ordered By: {order.orderBy.replace(/@[\w.-]+$/, '')}
+                          </Typography>
                         </Box>
-                      <Typography variant="body1" sx={{ marginTop: 2, fontWeight: 'bold' }}>Items</Typography>
-                      {order.products.length > 0 ? (
-                        <Box sx={{ maxHeight: 200, overflowY: 'auto' }}>
-                          {order.products.map(product => (
-                            <Box key={product.cartId} display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 2 }}>
-                            <Checkbox id={`product-${product.cartId}`} 
+                      </span>
+                      <span style={{ fontSize: '18px', marginRight: '10px' }}>
+                        <Badge
+                          color="warning"
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            marginTop: 1,
+                            backgroundColor: '#FFFF8F',
+                            padding: '8px 12px',
+                            borderRadius: '12px',
+                          }}
+                        >
+                          <AccessTime sx={{ fontSize: 16, marginRight: 1 }} />
+                          {order.orderStatus}
+                        </Badge>
+                      </span>
+                    </Box>
+                    <Typography variant="body1" component="div" sx={{ marginTop: 2, fontWeight: 'bold' }}>Items</Typography>
+                    {order.products.length > 0 ? (
+                      <Box sx={{ maxHeight: 200, overflowY: 'auto' }}>
+                        {order.products.map(product => (
+                          <Box key={product.cartId} display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 2 }}>
+                            <Checkbox
+                              id={`product-${product.cartId}`}
                               cartid={`product-${product.cartId}`}
                               checked={checkedItems[order.orderId]?.[product.cartId] || false}
                               onChange={() => handleCheckboxChange(order.orderId, product.cartId)}
                             />
-                            <label htmlFor={`product-${product.cartId}`} style={{ flexGrow: 1 }}>
-                              {product.productName} x {product.quantity}
+                            <label htmlFor={`product-${product.cartId}`} style={{ flexGrow: 1, userSelect: 'none' }}>
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ fontSize: '20px' }}>
+                                  {product.productName}
+                                  <span style={{ fontSize: '15px', color: '#8B4543' }}> {'(Size '}{product.productSize}{')'}</span>
+                                </span>
+                                <div style={{ fontSize: '14px', marginTop: '5px', opacity: 0.8 }}>
+                                  Quantity: {product.quantity}
+                                </div>
+                              </div>
                             </label>
-                            <span style={{ fontSize: '18px', marginRight:'10px'}}>
+                            <span style={{ fontSize: '18px', marginRight: '10px', userSelect: 'none' }}>
                               ₱{(product.price * product.quantity).toFixed(2)}
                             </span>
                           </Box>
-                          ))}
-                        </Box>
-                      ) : (
-                        <Typography variant="body2">No products in this order.</Typography>
-                      )}
-                    
-                    </CardContent>
-                    <Divider/>
-                      <Typography variant="body1" sx={{ marginTop: 2, fontWeight: 'bold' }}>
-                      <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 2 }}>
-                        <span style={{ fontSize: '20px' }}>Total Price:</span>
-                        <span style={{ fontSize: '20px' }}>₱{order.products.reduce((sum, product) => sum + product.price * product.quantity, 0).toFixed(2)}</span>
+                        ))}
                       </Box>
-                      </Typography>
-                    <CardActions sx={{ justifyContent: 'center' }}>      
-                      <Button 
-                        variant="contained"
-                        sx={{
-                            backgroundColor: '#8B4543', 
-                            '&:hover': {
-                              backgroundColor: '#693432', 
-                              
-                            },
-                          }}
-                        fullWidth
-                        onClick={() => handleUpdateOrder(order.orderId, order.orderBy)}
-                        disabled={!isAllChecked(order.orderId, order.products)} 
+                    ) : (
+                      <Typography variant="body2" component="div">No products in this order.</Typography>
+                    )}
+                  </CardContent>
+                  <Divider sx={{width:350, marginLeft:3}} />
+                  <Typography variant="body1" component="div" sx={{ marginTop: 2, fontWeight: 'bold' }}>
+                    <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 2 }}>
+                      <span style={{ fontSize: '20px', marginLeft: '10px' }}>Total Price:</span>
+                      <span style={{ fontSize: '20px' }}>
+                        ₱{order.products.reduce((sum, product) => sum + product.price * product.quantity, 0).toFixed(2)}
+                      </span>
+                    </Box>
+                  </Typography>
+                  <CardActions sx={{ justifyContent: 'center' }}>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        backgroundColor: '#6ad661',
+                        '&:hover': {
+                          backgroundColor: '#74ef6a',
+                        },
+                      }}
+                      fullWidth
+                      onClick={() => handleUpdateOrder(order.orderId, order.orderBy, 'DONE', )}
+                      disabled={!isAllChecked(order.orderId, order.products)}
+                    >
+                      Order Served
+                    </Button>
+
+                    <Button
+                      variant="contained"
+                      sx={{
+                        backgroundColor: '#8B4543',
+                        '&:hover': {
+                          backgroundColor: '#693432',
+                        },
+                      }}
+                      fullWidth
+                      onClick={() => handleClickOpen(order.orderId)}
+                    >
+                      Cancel Order
+                    </Button>
+                    <Dialog
+                      open={openDialog[order.orderId] || false}
+                      onClose={() => handleClose(order.orderId)}
+                      aria-labelledby="alert-dialog-title"
+                      aria-describedby="alert-dialog-description"
+                    >
+                      <DialogTitle id="alert-dialog-title">{"Cancel Order?"}</DialogTitle>
+                      <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                          Are you sure you want to cancel this order?
                         
-
-                      >
-                        Done
-                      </Button>
-                    </CardActions>
-                  </Card>
-                ))}
-            </Box>
-          ) : (
-            <Typography>No orders found.</Typography>
-          )}
-          
-        </div>
-    ));
-    }
-
-    export default MyViewOrders;
+                        </DialogContentText>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={() => handleClose(order.orderId)} color="primary">No</Button>
+                        <Button color="error" onClick={() => handleAgree(order.orderId, order.orderBy)} autoFocus>
+                          Yes
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+                  </CardActions>
+                </Card>
+              ))}
+          </Box>
+        ) : (
+          <Typography variant="h6" color="textSecondary" sx={{ marginLeft: '10px' }}>No orders to display.</Typography>
+        )}
+      </div>
+    )
+  );
+}
 
 MyViewOrders.propTypes = {
-    token:PropTypes.string.isRequired,
-    };
+  token: PropTypes.string.isRequired
+};
 
-const StyledWrapper = styled.div`
-  .card {
-   width: 320px;
-   height: 730px;
-
-   border-radius: 7px;
-   box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
-  }`;
+export default MyViewOrders;

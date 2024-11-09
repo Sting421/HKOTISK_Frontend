@@ -5,37 +5,48 @@ import { Alert, Button, Card, CardContent, Grid, IconButton, Snackbar, Typograph
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import axios from 'axios';
-import { postRequest } from '../utils/api';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-
-
 function MyItemCard(props) {
-  const sizeOptions = props.itemSize;
+  // Set default values in case props are undefined or empty arrays
+  const itemSize = props.itemSize ;
+  const priceList = props.price ;
+  
+  const [size, setSize] = useState('S');
+  const [price, setPrice] = useState(priceList[0] ? parseFloat(priceList[0]) : 0);
   const [quantity, setQuantity] = useState(1);
-  const [size, setSize] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [token, setToken] = useState(props.myToken);
-
+  const [token] = useState(props.myToken);
   const [open, setOpen] = useState(false);
 
   const itemData = useMemo(() => ({
     productId: parseInt(props.productId, 10),
     quantity,
-    price: parseFloat(props.price),
-    size:String(size), 
-  }), [props.productId,size, quantity, props.price]);
+    price: parseFloat(price),
+    size: String(size),
+  }), [props.productId, size, quantity, price]);
 
-  const incrementQuantity = () => setQuantity((prev) => prev + 1);
+  const incrementQuantity = () => {
+    setQuantity((prev) => {
+      if (props.itemQuantity > 1 && prev < props.itemQuantity) {
+        return prev + 1;
+      }
+      return prev;
+    });
+    setError('');
+  };
 
-  const decrementQuantity = () => {setQuantity((prev) => Math.max(1, prev - 1))};
+  const decrementQuantity = () => {
+    setQuantity((prev) => Math.max(1, prev - 1));
+  };
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setSize('');
+
     if (!token) {
       setError('You must be logged in to add items to the cart.');
       setIsLoading(false);
@@ -49,38 +60,29 @@ function MyItemCard(props) {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("Added to Cart successfully:", response.data);
-     
-
       setOpen(true);
     } catch (error) {
-      if(size === ''){
-        setError('Please Select Size. Please try again.');
-      }
-     else{
-      setError('Failed to add to cart. Please try again.');
-     }
+      setError(size === '' ? 'Please select a size.' : 'Failed to add to cart. Please try again.');
       console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
-  const handleClose = (reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
 
+  const handleClose = (reason) => {
+    if (reason === 'clickaway') return;
     setOpen(false);
   };
-  const resetErrorMessage =() =>{
-    setError('');
-  }
-  useEffect(() => {
-    if (sizeOptions.length === 1) {
-      setSize('S');
-    }
-  }, [sizeOptions]); 
-   
 
+  useEffect(() => {
+    // Only set size or price if itemSize and priceList have elements
+    if (itemSize.length === 1) {
+      setSize(itemSize[0]);
+    }
+    if (priceList.length === 1) {
+      setPrice(priceList[0]);
+    }
+  }, [itemSize, priceList]);
 
   return (
     <Card sx={{ borderRadius: '4%', width: '30rem', backgroundColor: 'inherit', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', maxHeight: '400px', maxWidth: '600px', minHeight: '300px', minWidth: '600px' }}>
@@ -95,7 +97,7 @@ function MyItemCard(props) {
           </Grid>
           <Grid item xs={6}>
             <Typography variant="h6">{props.itemName}</Typography>
-            <Typography color="#883C40">P{props.price.toFixed(2)}</Typography>
+            <Typography color="#883C40">P{price.toFixed(2)}</Typography>
             <Typography variant="body2" color="textSecondary" sx={{ marginTop: '0.5rem' }}>
               {props.itemDescription}
             </Typography>
@@ -117,58 +119,56 @@ function MyItemCard(props) {
             </div>
           </Grid>
           <Grid item xs={6}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Grid item xs={6}>
-                {props.itemSize != null && (
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '20px', marginLeft: '15px' }}>
-                    {sizeOptions.length > 1 &&
-                    <Typography variant="body2" style={{ fontWeight: '500', marginTop: '5px' }}>Size</Typography>
-                    }
-                    {sizeOptions.length > 1 && sizeOptions.map(option => (
-                      <Button
-                        key={option}
-                        variant={size === option ? 'contained' : 'outlined'}
-                        size="small"
-                       
-                        sx={{
-                          borderRadius: '0% 25% 25% 25% / 54% 54% 0% 46%',
-                          backgroundColor: size === option ? '#757575' : 'transparent',
-                          color: size === option ? '#ffffff' : '#757575',
-                          paddingRight: '30px',
-                          paddingLeft: '30px',
-                          borderColor: '#757575',
-                          '&:hover': {
-                            backgroundColor: size === option ? '#616161' : 'rgba(117, 117, 117, 0.1)',
-                            borderColor: size === option ? '#616161' : '#757575',
-                           
-                          },
-                        }}
-                        onClick={() => { setSize(option); resetErrorMessage(); }}
-
-                      >
-                        {option}
-                      </Button>
-                    ))}
-                  </div>
-                )}
-              </Grid>
-            </div>
-            <Grid item xs={12}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginLeft: '10px', marginTop: '9px' }}>
-                <Button
+            {itemSize.length > 1 && (
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '20px', marginLeft: '15px' }}>
+                <Typography variant="body2" style={{ fontWeight: '500', marginTop: '5px' }}>Size</Typography>
+                {itemSize.map((option, idx) => (
+                  <Button
+                    key={option}
+                    variant={size === option ? 'contained' : 'outlined'}
+                    size="small"
+                    sx={{
+                      borderRadius: '0% 25% 25% 25% / 54% 54% 0% 46%',
+                      backgroundColor: size === option ? '#757575' : 'transparent',
+                      color: size === option ? '#ffffff' : '#757575',
+                      paddingRight: '30px',
+                      paddingLeft: '30px',
+                      borderColor: '#757575',
+                      '&:hover': {
+                        backgroundColor: size === option ? '#616161' : 'rgba(117, 117, 117, 0.1)',
+                        borderColor: size === option ? '#616161' : '#757575',
+                      },
+                    }}
+                    onClick={() => { 
+                      setSize(option); 
+                      setPrice(parseFloat(priceList[idx]));
+                      setError(''); 
+                    }}
+                  >
+                    {option}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </Grid>
+         
+          <Grid item xs={12}>
+    
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginLeft: '10px', marginTop: '9px' }}>
+            <Button
                   variant="contained"
                   sx={{ borderRadius: '10% 10% 10% 10% / 50% 50% 50% 50%', backgroundColor: '#883C40', '&:hover': { backgroundColor: '#6f2b2f' }, paddingLeft: '40px', paddingRight: '40px' }}
                   onClick={handleAddToCart}
                 >
                   Add to Cart
                 </Button>
-                <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
-                  <Alert  onClose={handleClose}  severity="success" variant="filled"  sx={{ width: '100%' }} >
-                    Added to Cart successfully
-                  </Alert>
-                </Snackbar>
-              </div>
-            </Grid>
+              <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="success" variant="filled" sx={{ width: '100%' }}>
+                  Added to Cart successfully
+                </Alert>
+              </Snackbar>
+            </div>
           </Grid>
         </Grid>
         {error && <Typography color="error">{error}</Typography>}
