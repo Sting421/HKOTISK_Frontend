@@ -17,6 +17,7 @@ function MyViewOrders(props) {
   const [checkedItems, setCheckedItems] = useState({});
   const [openDialog, setOpenDialog] = useState({});
   const prevOrderList = useRef([]);
+  const [fltr, setFltr] = useState('PENDING');
 
   const isAllChecked = (orderId, products) => {
     return products.every(product => checkedItems[orderId]?.[product.cartId]);
@@ -59,9 +60,9 @@ function MyViewOrders(props) {
     setIsLoading(false);
    
     fetchOrders();
-  
+    setIsUpdated(false);
    
-  }, [token]);
+  }, [token,isUpdated]);
   
 
   const handleUpdateOrder = async (id, email, status) => {
@@ -117,6 +118,9 @@ function MyViewOrders(props) {
     handleUpdateOrder(orderId, email, 'CANCELED');
     setOpenDialog(prevState => ({ ...prevState, [orderId]: false }));
   };
+  const handleFilter = (value) =>{
+    setFltr(value);
+  };
 
   return (
     isLoading ? (
@@ -125,11 +129,18 @@ function MyViewOrders(props) {
       </Box>
     ) : (
       <div>
+        
+        <Button onClick={() => handleFilter('DONE')}>Done</Button>
+        <Button onClick={() => handleFilter('PENDING')}>Pending</Button>
+        <Button onClick={() => handleFilter('CANCELED')}>CANCELED</Button>
+
+        
+
         <Typography variant="h5" gutterBottom marginLeft={10}>Order List</Typography>
         {orderList.length > 0 ? (
           <Box display="flex" flexWrap="wrap" gap={5} marginLeft={10}>
             {orderList
-              .filter(order => order.orderStatus === 'PENDING')
+              .filter(order => order.orderStatus === fltr)
               .map(order => (
                 <Card key={order.orderId} variant="outlined" sx={{ display: 'flex', flexDirection: 'column', height: "500px", width: "400px", paddingRight: "10px" }}>
                   <CardContent sx={{ flexGrow: 1 }}>
@@ -145,12 +156,18 @@ function MyViewOrders(props) {
                       </span>
                       <span style={{ fontSize: '18px', marginRight: '10px' }}>
                         <Badge
+                        
                           color="warning"
                           sx={{
                             display: 'flex',
                             alignItems: 'center',
                             marginTop: 1,
-                            backgroundColor: '#FFFF8F',
+                            backgroundColor: order.orderStatus === 'DONE'
+                            ? '#A9E2A2'  
+                            : order.orderStatus === 'PENDING'
+                            ? '#FFFF8F'  
+                            : '#F4A6A6', 
+
                             padding: '8px 12px',
                             borderRadius: '12px',
                           }}
@@ -165,12 +182,16 @@ function MyViewOrders(props) {
                       <Box sx={{ maxHeight: 200, overflowY: 'auto' }}>
                         {order.products.map(product => (
                           <Box key={product.cartId} display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 2 }}>
-                            <Checkbox
-                              id={`product-${product.cartId}`}
-                              cartid={`product-${product.cartId}`}
-                              checked={checkedItems[order.orderId]?.[product.cartId] || false}
-                              onChange={() => handleCheckboxChange(order.orderId, product.cartId)}
-                            />
+                           {order.orderStatus === "PENDING" ? (
+                              <Checkbox
+                                id={`product-${product.cartId}`}
+                                cartid={`product-${product.cartId}`}
+                                checked={checkedItems[order.orderId]?.[product.cartId] || false}
+                                onChange={() => handleCheckboxChange(order.orderId, product.cartId)}
+                              />
+                            ) : (
+                              <div style={{ marginLeft: '20px' }}></div>
+                            )}
                             <label htmlFor={`product-${product.cartId}`} style={{ flexGrow: 1, userSelect: 'none' }}>
                               <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <span style={{ fontSize: '20px' }}>
@@ -195,41 +216,60 @@ function MyViewOrders(props) {
                   <Divider sx={{width:350, marginLeft:3}} />
                   <Typography variant="body1" component="div" sx={{ marginTop: 2, fontWeight: 'bold' }}>
                     <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 2 }}>
-                      <span style={{ fontSize: '20px', marginLeft: '10px' }}>Total Price:</span>
+                      <span style={{ fontSize: '20px', marginLeft: '10px', userSelect: 'none' }}>Total Price:</span>
                       <span style={{ fontSize: '20px' }}>
                         ₱{order.products.reduce((sum, product) => sum + product.price * product.quantity, 0).toFixed(2)}
                       </span>
                     </Box>
                   </Typography>
                   <CardActions sx={{ justifyContent: 'center' }}>
-                    <Button
-                      variant="contained"
-                      sx={{
-                        backgroundColor: '#6ad661',
-                        '&:hover': {
-                          backgroundColor: '#74ef6a',
-                        },
-                      }}
-                      fullWidth
-                      onClick={() => handleUpdateOrder(order.orderId, order.orderBy, 'DONE', )}
-                      disabled={!isAllChecked(order.orderId, order.products)}
-                    >
-                      Order Served
-                    </Button>
+                      {order.orderStatus === "CANCELED" && (
+                        <Button
+                                variant="contained"
+                                sx={{
+                                  backgroundColor: '#6ad661',
+                                  '&:hover': {
+                                    backgroundColor: '#74ef6a',
+                                  },
+                                }}
+                                fullWidth
+                                onClick={() => handleUpdateOrder(order.orderId, order.orderBy, 'PENDING')}
+                              >
+                                RESTORE
+                              </Button>
+                      )}
+                      {order.orderStatus === "PENDING" && (
+                            <>
+                              <Button
+                                variant="contained"
+                                sx={{
+                                  backgroundColor: '#6ad661',
+                                  '&:hover': {
+                                    backgroundColor: '#74ef6a',
+                                  },
+                                }}
+                                fullWidth
+                                onClick={() => handleUpdateOrder(order.orderId, order.orderBy, 'DONE')}
+                                disabled={!isAllChecked(order.orderId, order.products)}
+                              >
+                                Order Served
+                              </Button>
 
-                    <Button
-                      variant="contained"
-                      sx={{
-                        backgroundColor: '#8B4543',
-                        '&:hover': {
-                          backgroundColor: '#693432',
-                        },
-                      }}
-                      fullWidth
-                      onClick={() => handleClickOpen(order.orderId)}
-                    >
-                      Cancel Order
-                    </Button>
+                              <Button
+                                variant="contained"
+                                sx={{
+                                  backgroundColor: '#8B4543',
+                                  '&:hover': {
+                                   backgroundColor: '#693432',
+                                  },
+                                }}
+                                fullWidth
+                                onClick={() => handleClickOpen(order.orderId)}
+                              >
+                                Cancel Order
+                              </Button>
+                            </>
+                          )}
                     <Dialog
                       open={openDialog[order.orderId] || false}
                       onClose={() => handleClose(order.orderId)}

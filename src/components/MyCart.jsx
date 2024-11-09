@@ -14,10 +14,13 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export default function MyCart() {
   const [myCart, setMyCart] = useState([]);
+  const [productData, setProductData] = useState([]);
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [token, setToken] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
+ 
   const [totalPrice, setTotalPrice] = useState(0.00);
 
   const [orderData] = useState([]);
@@ -33,18 +36,21 @@ export default function MyCart() {
   }, []);
 
   useEffect(() => {
-    if (token) fetchData(`${baseUrl}/user/cart`);
+    if (token) {
+      fetchData(`${baseUrl}/user/cart`,setMyCart);
+      fetchData(`${baseUrl}/user/product`,setProductData);
+    }
     setIsDeleted(false);
   
   }, [token,drawerOpen,isDeleted]);
 
-  const fetchData = async (url) => {
+  const fetchData = async (url,data) => {
     try {
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.status === 200) {
-        setMyCart(response.data.oblist);
+        data(response.data.oblist);
       }
       console.log("Fetching Data")
     } catch (error) {
