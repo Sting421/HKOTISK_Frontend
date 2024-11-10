@@ -15,7 +15,7 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState(myToken);
   const [productData, setProductData] = useState(
-    { productId: parseInt(productId, 10), description: itemDescription, productName: itemName, price: parseFloat(price), quantity: itemQuantity, sizes: itemSize });
+    { productId: parseInt(productId, 10), description: itemDescription, productName: itemName, prices: parseFloat(price), quantity: itemQuantity, sizes: itemSize });
 
   const [open, setOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
@@ -58,7 +58,7 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
       productId: parseInt(productData.productId, 10),
       description: productData.description,
       productName: productData.productName,
-      price: parseFloat(productData.price),
+      prices: [parseFloat(productData.price)],
       quantity: productData.quantity,
       category: "Food",
       sizes: productData.sizes
@@ -134,7 +134,7 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
               hiddenLabel
               id="outlined-size-small"
               name="price"
-              defaultValue={productData.price}
+              defaultValue={productData.prices}
               onChange={handleProductChange}
               size="small"
               sx={{ width: '130px' }}
@@ -167,7 +167,7 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
             {itemSize != null && (
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '20px', marginLeft: '15px' }}>
                 <Typography variant="body2" style={{ fontWeight: '500', marginTop: '5px' }}>Size</Typography>
-                {sizeOptions.map(option => (
+                {itemSize.map((option, idx) => (
                   <Button
                     key={option}
                     variant={size === option ? 'contained' : 'outlined'}
@@ -184,7 +184,10 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
                         borderColor: size === option ? '#616161' : '#757575',
                       },
                     }}
-                    onClick={() => setSize(option)}
+                    onClick={() => { 
+                      setSize(option); 
+                      setError(''); 
+                    }}
                   >
                     {option}
                   </Button>

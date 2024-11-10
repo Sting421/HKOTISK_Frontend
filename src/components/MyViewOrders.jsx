@@ -75,28 +75,19 @@ function MyViewOrders(props) {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      if(status === 'DONE'){
+        const prevQuantity = await axios.get(`${baseUrl}/staff/products/quantity/2`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        console.log('this is the prev Quantity from get',prevQuantity.data);
+        
+        // const updateQuantity = await axios.put(`${baseUrl}/product${id}`, {
+        //   headers: { Authorization: `Bearer ${token}` }
+        // });
+        
+      }
       
       console.log("Update successful:", response.data);
-  
-      // Reduce the quantity of the served products
-      // setOrderList(prevOrderList => prevOrderList.map(order => {
-      //   if (order.orderId === id) {
-      //     // Reduce the quantity for each product in the served order
-      //     const updatedProducts = order.products.map(product => ({
-      //       const response = await axios.put(`${baseUrl}/staff/product`, {
-      //         productId: product.productId,
-      //         quantity: quantity,
-              
-      //       }, {
-      //         headers: { Authorization: `Bearer ${token}` }
-      //       });
-      //     }));
-          
-      //     // Return updated order
-      //     return { ...order, products: updatedProducts };
-      //   }
-      //   return order;
-      // }));
   
       setIsUpdated(true);
     } catch (err) {

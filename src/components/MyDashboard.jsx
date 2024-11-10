@@ -109,7 +109,7 @@ function MyDashboard({ window }) {
         <MyUpdateProducts
           key={product.productId}
           productId={parseInt(product.productId, 10)}
-          price={product.price}
+          price={product.prices}
           itemName={product.productName}
           itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
           itemDescription={product.description}
