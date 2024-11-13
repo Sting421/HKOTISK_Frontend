@@ -3,7 +3,8 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import { SnackbarProvider, useSnackbar } from 'notistack';
 import { Button, Checkbox, Card, CardContent, CardActions, Typography, 
-Badge, Box, CircularProgress, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+Badge, Box, CircularProgress, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, 
+TextField} from '@mui/material';
 import { AccessTime } from '@mui/icons-material';
 import PersonIcon from '@mui/icons-material/Person';
 
@@ -23,6 +24,7 @@ function MyViewOrders(props) {
 
   const [messages, setMessages] = useState([]);
   const [newOrder, setNewOrder] = useState(false);
+  const [search, setSearch] = useState('');
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -58,6 +60,11 @@ function MyViewOrders(props) {
   const handleEnqueueUpdate = () => {
     enqueueSnackbar(messages);
   };
+  const handleOnChangeSearch = (e) => {
+    setSearch(e.target.value);
+    console.log(search)
+  };
+  
   
 
   useEffect(() => {
@@ -144,19 +151,22 @@ function MyViewOrders(props) {
         <CircularProgress />
       </Box>
     ) : (
+      
       <div>
-        
-        <Button onClick={() => handleFilter('DONE')}>Done</Button>
+         <TextField label="Search Order Id" name='search'  variant="standard" onChange={handleOnChangeSearch}/>
+       <div>
+       <Button onClick={() => handleFilter('DONE')}>Done</Button>
         <Button onClick={() => handleFilter('PENDING')}>Pending</Button>
         <Button onClick={() => handleFilter('CANCELED')}>CANCELED</Button>
-
-        
+       </div>
 
         <Typography variant="h5" gutterBottom marginLeft={10}>Order List</Typography>
         {orderList.length > 0 ? (
           <Box display="flex" flexWrap="wrap" gap={5} marginLeft={10}>
+            
             {orderList
               .filter(order => order.orderStatus === fltr)
+              .filter(order => search === '' || order.orderId === parseInt(search) ||  order.orderBy.replace(/@[\w.-]+$/, '') === search)
               .map(order => (
                 <Card key={order.orderId} variant="outlined" sx={{ display: 'flex', flexDirection: 'column', height: "500px", width: "400px", paddingRight: "10px" }}>
                   <CardContent sx={{ flexGrow: 1 }}>
