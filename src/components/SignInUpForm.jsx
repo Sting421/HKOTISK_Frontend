@@ -21,8 +21,7 @@ const SignInUpForm = ({ onSignIn }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('')
-  
-  const [errorCondition, setErrorCondition] = useState ();;
+  const [errorCondition, setErrorCondition] = useState ();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -130,8 +129,6 @@ const SignInUpForm = ({ onSignIn }) => {
   }
 
   return (
-    
-     
     <div className={`container ${rightPanelActive ? 'right-panel-active' : ''}`} id="container">
       <div className="form-container sign-up-container">
         <form onSubmit={handleSignUpSubmit} autoComplete="off">
@@ -209,7 +206,6 @@ const SignInUpForm = ({ onSignIn }) => {
 };
 
 export default SignInUpForm;
-
 
 const MyLogOut = () => {
   const [isLoading, setIsLoading] = useState(false);
