@@ -1,11 +1,12 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Autocomplete, Checkbox, FormControlLabel, TextField } from '@mui/material';
+import { Autocomplete, Checkbox, FormControlLabel, TextField ,Grid, Grid2, InputAdornment} from '@mui/material';
 import axios from 'axios';
+import Logo from '../assets/componentsRes/hkotiskLogo.png';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -16,7 +17,7 @@ export default function AddProducts() {
   const [productData, setProductData] = useState({
     description: '',
     productName: '',
-    prices: [], // Prices will be an array
+    prices: [0, 0, 0], // Default values for prices
     quantity: 1,
     sizes: [],
     category: '',
@@ -56,14 +57,14 @@ export default function AddProducts() {
 
   const clearProductData = () => {
     setProductData({
-      productId: 0,
       description: '',
       productName: '',
-      prices: [],  // Reset prices
-      quantity: 0,
+      prices: [0, 0, 0], // Reset prices to default
+      quantity: 1,
       sizes: [],
       category: '',
     });
+    setError(''); // Clear any existing errors
   };
 
   const categoryOptions = [
@@ -73,6 +74,11 @@ export default function AddProducts() {
 
   const handleAddItemSubmit = async (e) => {
     e.preventDefault();
+    if (!token) {
+      setError('Authentication token is missing.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -92,117 +98,129 @@ export default function AddProducts() {
   };
 
   return (
-    <Card sx={{ maxWidth: 700 }}>
+    
+    <Card sx={{ marginLeft:'30%', marginTop:'7%', borderRadius: '2%', width: '30rem', backgroundColor: 'inherit', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', height: '700px', minWidth: '800px' }}>
+      <h1 style={{ marginLeft: 30, marginTop: 30 }}>Add Product</h1>
       <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <TextField
+        <Grid container spacing={3}>
+          <Grid item xs={6}>
+            <img
+              src={Logo}
+              alt="logo"
+              style={{
+                width: '13rem',
+                height: '11rem',
+                objectFit: 'cover',
+                borderRadius: '0.375rem',
+                border: '2px solid #000',
+                backgroundColor: '#f0f0f0',
+                padding: '8px',
+              }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            
+              <TextField
               id="product-name"
               name="productName"
               label="Product Name"
               variant="outlined"
-              sx={{ width: 300 }}
-              style={{ marginBottom: '16px' }}
+              sx={{ width: 300, marginBottom: '16px' }}
               required
               onChange={handleProductChange}
             />
-            {productData.sizes.includes('S') && (
-              <TextField
-                id="price-S"
-                name="price-S"
-                label="Price (S)"
-                variant="outlined"
-                sx={{ width: 300 }}
-                style={{ marginBottom: '16px' }}
-                inputProps={{ min: 0 }}
-                value={productData.prices[0] || ''}
-                onChange={handleProductChange}
-                required
-              />
-            )}
-            {productData.sizes.includes('M') && (
-              <TextField
-                id="price-M"
-                name="price-M"
-                label="Price (M)"
-                variant="outlined"
-                sx={{ width: 300 }}
-                style={{ marginBottom: '16px' }}
-                inputProps={{ min: 0 }}
-                value={productData.prices[1] || ''}
-                onChange={handleProductChange}
-                required
-              />
-            )}
-            {productData.sizes.includes('L') && (
-              <TextField
-                id="price-L"
-                name="price-L"
-                label="Price (L)"
-                variant="outlined"
-                sx={{ width: 300 }}
-                style={{ marginBottom: '16px' }}
-                inputProps={{ min: 0 }}
-                value={productData.prices[2] || ''}
-                onChange={handleProductChange}
-                required
-              />
-            )}
-            <TextField
-              id="quantity"
-              name="quantity"
-              label="Quantity"
-              variant="outlined"
-              style={{ marginBottom: '16px' }}
-              required
-              value={productData.quantity}
-              onChange={handleProductChange}
-              inputProps={{ min: 0 }}
-              sx={{ width: 300 }}
-            />
-            <TextField
-              id="description"
-              name="description"
-              label="Description"
-              variant="outlined"
-              sx={{ width: 300 }}
-              style={{ marginBottom: '16px' }}
-              required
-              onChange={handleProductChange}
-            />
-            <Typography>Size</Typography>
-            <div>
-              {['S', 'M', 'L'].map((size) => (
-                <FormControlLabel
-                  key={size}
-                  control={
-                    <Checkbox
-                      name="sizes"
-                      value={size}
-                      checked={productData.sizes.includes(size)}
-                      onChange={handleProductChange}
-                    />
-                  }
-                  label={size}
+             <Typography>Size</Typography>
+        <div>
+          {['S', 'M', 'L'].map((size) => (
+            <FormControlLabel
+              key={size}
+              control={
+                <Checkbox
+                  name="sizes"
+                
+                  value={size}
+                  checked={productData.sizes.includes(size)}
+                  onChange={handleProductChange}
                 />
-              ))}
-            </div>
-            <Autocomplete
-              disablePortal
-              options={categoryOptions}
-              openOnFocus
-              id="category"
-              sx={{ width: 300 }}
-              disableCloseOnSelect
-              onChange={handleCategoryChange}
-              renderInput={(params) => <TextField {...params} label="Category" />}
+              }
+              label={size}
             />
-          </div>
-          {error && <Typography color="error">{error}</Typography>}
-        </Typography>
+          ))}
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+          {['S', 'M', 'L'].map((size, index) => (
+            productData.sizes.includes(size) && (
+              <TextField
+                key={size}
+                id={`price-${size}`}
+                name={`price-${size}`}
+                label={`Price (${size})`}
+                variant="outlined"
+                sx={{ width: 300, marginBottom: '16px', marginRight: '10px' }}
+                inputProps={{ min: 0 }}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">₱</InputAdornment>, // Use InputProps here
+                }}
+                value={productData.prices[index] || ''}
+                onChange={handleProductChange}
+                required
+              />
+            )
+          ))}
+        </div>
+
+          </Grid>
+        </Grid>
+          <TextField
+        id="description"
+        name="description"
+        label="Description"
+        placeholder="Product description"
+        variant="outlined"
+        fullWidth
+        multiline
+        rows={3}
+        sx={{ marginBottom: '1.5rem', marginTop: '1rem' }}
+        onChange={handleProductChange}
+        required
+      />
+
+       
+        
+        <TextField
+          id="quantity"
+          name="quantity"
+          label="Quantity"
+          variant="outlined"
+          required
+          type="number"
+          value={productData.quantity}
+          onChange={handleProductChange}
+          inputProps={{ min: 1 }}
+          sx={{ width: 300, marginBottom: '16px' }}
+        />
+        <Autocomplete
+          disablePortal
+          options={categoryOptions}
+          openOnFocus
+          id="category"
+          sx={{ width: 300 }}
+          disableCloseOnSelect
+          onChange={handleCategoryChange}
+          renderInput={(params) => <TextField {...params} label="Category" />}
+        />
+
+        {error && <Typography color="error">{error}</Typography>}
       </CardContent>
       <CardActions>
-        <Button variant="contained" style={{ marginLeft: '37%' }} onClick={handleAddItemSubmit} disabled={isLoading}>
+        <Button 
+          variant="contained" 
+          style={{ marginLeft: '37%' }} 
+          onClick={handleAddItemSubmit} 
+          disabled={isLoading} 
+          aria-busy={isLoading}
+        >
           {isLoading ? 'Adding...' : 'Add Product'}
         </Button>
       </CardActions>

@@ -98,7 +98,7 @@ function MyCartItemCard(props) {
     <Card sx={{ width: '100%', maxWidth: 390 }}>
       <CardContent sx={{ p: 3 }}>
       
-
+      
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">{props.itemName}</Typography>
           <Typography variant="h6">₱ {(props.itemPrice * quantity).toFixed(2)}</Typography>

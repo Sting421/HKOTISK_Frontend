@@ -36,6 +36,7 @@ function MyItemCard(props) {
       return prev;
     });
     setError('');
+    props.setisUpated(true);
   };
 
   const decrementQuantity = () => {
@@ -55,7 +56,7 @@ function MyItemCard(props) {
 
     try {
       const response = await axios.post(
-        `${baseUrl}/user/addToCart`,
+        `${baseUrl}/user/cart`,
         itemData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

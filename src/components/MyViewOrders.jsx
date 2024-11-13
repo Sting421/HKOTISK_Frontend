@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import  { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
-import { Button, Checkbox, Card, CardContent, CardActions, Typography, Badge, Box, CircularProgress, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { SnackbarProvider, useSnackbar } from 'notistack';
+import { Button, Checkbox, Card, CardContent, CardActions, Typography, 
+Badge, Box, CircularProgress, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { AccessTime } from '@mui/icons-material';
 import PersonIcon from '@mui/icons-material/Person';
 
@@ -16,12 +18,78 @@ function MyViewOrders(props) {
 
   const [checkedItems, setCheckedItems] = useState({});
   const [openDialog, setOpenDialog] = useState({});
-  const prevOrderList = useRef([]);
+  const prevOrderList = useRef();
   const [fltr, setFltr] = useState('PENDING');
+
+  const [messages, setMessages] = useState([]);
+  const [newOrder, setNewOrder] = useState(false);
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  
+  const fetchOrders = async () => {
+      
+    try {
+      if (token) {
+        const response = await axios.get(`${baseUrl}/staff/orders`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const newOrderList = response.data.orderlist;
+        console.log("Fetching orders......");
+
+        // Check if the order list has changed
+        if (JSON.stringify(newOrderList) !== JSON.stringify(prevOrderList.current)) {
+          setOrderList(newOrderList);
+          prevOrderList.current = newOrderList;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }finally{
+      setIsLoading(false);
+    }
+  };
+
+  if (isUpdated || newOrder) {
+    fetchOrders();
+    setIsUpdated(false);
+    setNewOrder(false);
+  }
+  const handleEnqueueUpdate = () => {
+    enqueueSnackbar(messages);
+  };
+  
+
+  useEffect(() => {
+    const socket = new WebSocket('ws://localhost:8080/ws/orders');
+    socket.onopen = () => {
+        console.log('WebSocket connection established');
+    };
+
+    socket.onmessage = (event) => {
+        console.log('Message received: ', event.data);
+        setMessages(event.data);
+        handleEnqueueUpdate();
+        setNewOrder(true);
+    };
+
+    socket.onclose = () => {
+        console.log('WebSocket connection closed');
+    };
+
+    socket.onerror = (error) => {
+        console.error('WebSocket error: ', error);
+    };
+
+    return () => {
+        socket.close();
+    };
+}, []);
 
   const isAllChecked = (orderId, products) => {
     return products.every(product => checkedItems[orderId]?.[product.cartId]);
   };
+
 
   const handleCheckboxChange = (orderId, cartId) => {
     setCheckedItems(prevState => ({
@@ -33,38 +101,6 @@ function MyViewOrders(props) {
     }));
   };
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      
-      try {
-        if (token) {
-          const response = await axios.get(`${baseUrl}/staff/orders`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const newOrderList = response.data.orderlist;
-          console.log("Fetching orders......");
-  
-          // Check if the order list has changed
-          if (JSON.stringify(newOrderList) !== JSON.stringify(prevOrderList.current)) {
-            setIsLoading(true);
-            setOrderList(newOrderList);
-            prevOrderList.current = newOrderList;
-          }
-        }
-      } catch (err) {
-        console.error(err);
-      }finally{
-        setIsLoading(false);
-      }
-    };
-    setIsLoading(false);
-   
-    fetchOrders();
-    setIsUpdated(false);
-   
-  }, [token,isUpdated]);
-  
-
   const handleUpdateOrder = async (id, email, status) => {
     try {
       // Update the order status
@@ -75,18 +111,7 @@ function MyViewOrders(props) {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if(status === 'DONE'){
-        const prevQuantity = await axios.get(`${baseUrl}/staff/products/quantity/2`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        console.log('this is the prev Quantity from get',prevQuantity.data);
-        
-        // const updateQuantity = await axios.put(`${baseUrl}/product${id}`, {
-        //   headers: { Authorization: `Bearer ${token}` }
-        // });
-        
-      }
-      
+     
       console.log("Update successful:", response.data);
   
       setIsUpdated(true);
@@ -288,7 +313,10 @@ function MyViewOrders(props) {
         ) : (
           <Typography variant="h6" color="textSecondary" sx={{ marginLeft: '10px' }}>No orders to display.</Typography>
         )}
+        <SnackbarProvider maxSnack={3}/>
+       
       </div>
+      
     )
   );
 }

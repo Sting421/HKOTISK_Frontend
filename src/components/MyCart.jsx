@@ -20,6 +20,7 @@ export default function MyCart() {
   const [token, setToken] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(false);
  
   const [totalPrice, setTotalPrice] = useState(0.00);
 
@@ -92,10 +93,14 @@ export default function MyCart() {
   const calculateTotalPrice = () => {
     return myCart.reduce((total, cart) => total + cart.price * cart.quantity, 0);
   };
+  
+  if(isUpdated){
+    setTotalPrice(calculateTotalPrice());
+  }
 
   useEffect(() => {
     setTotalPrice(calculateTotalPrice());
-  }, [myCart]);
+  }, [myCart,]);
   
   const CartList = () => (
     <Box sx={{ width: 400, marginTop: 8 }} role="presentation">
@@ -108,6 +113,7 @@ export default function MyCart() {
           itemPrice={cart.price}
           itemSize={cart.productSize}
           myToken={token}
+          setisUpated = {setIsUpdated}
           setIsDeleted={setIsDeleted}
         />
         
