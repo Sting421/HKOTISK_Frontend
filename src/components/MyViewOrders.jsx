@@ -4,9 +4,11 @@ import PropTypes from 'prop-types';
 import { SnackbarProvider, useSnackbar } from 'notistack';
 import { Button, Checkbox, Card, CardContent, CardActions, Typography, 
 Badge, Box, CircularProgress, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, 
-TextField} from '@mui/material';
+TextField,
+InputAdornment} from '@mui/material';
 import { AccessTime } from '@mui/icons-material';
 import PersonIcon from '@mui/icons-material/Person';
+import SearchIcon from '@mui/icons-material/Search'
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -153,20 +155,103 @@ function MyViewOrders(props) {
     ) : (
       
       <div>
-         <TextField label="Search Order Id" name='search'  variant="standard" onChange={handleOnChangeSearch}/>
-       <div>
-       <Button onClick={() => handleFilter('DONE')}>Done</Button>
-        <Button onClick={() => handleFilter('PENDING')}>Pending</Button>
-        <Button onClick={() => handleFilter('CANCELED')}>CANCELED</Button>
-       </div>
-
-        <Typography variant="h5" gutterBottom marginLeft={10}>Order List</Typography>
+        <TextField
+          label="Search"
+          name="search"
+          variant="outlined"
+          color="inherit"
+          onChange={handleOnChangeSearch}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            width: "100%",
+            maxWidth: "1000px",
+            marginLeft: "20px",
+            marginBottom: "20px",
+            borderRadius: "8px",
+            "& .MuiFormLabel-root": {
+              fontWeight: "bold",
+              color: "black", 
+            },
+            "& .MuiFormLabel-root.Mui-focused": {
+              color: "#F2C300", 
+            },
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "black",
+              },
+              "&:hover fieldset": {
+                borderColor: "#F2C300", 
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#F2C300", 
+              },
+              "&:hover .MuiInputBase-input": {
+                color: "#F2C300", 
+              },
+            },
+            "&:hover .MuiSvgIcon-root": {
+              color: "#F2C300",
+            },
+          }}
+        />
+      <div>
+        <Button
+          onClick={() => handleFilter('DONE')}
+          sx={{
+            marginLeft: "20px",
+            color: "inherit",
+            "&:hover": {
+              backgroundColor: "#F0F0F0", 
+              color: "green",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+            },
+          }}
+        >
+          Done
+        </Button>
+        <Button
+          onClick={() => handleFilter('PENDING')}
+          sx={{
+            marginLeft: "20px",
+            color: "inherit",
+            "&:hover": {
+              backgroundColor: "#F0F0F0",
+              color: "orange",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+            },
+          }}
+        >
+          Pending
+        </Button>
+        <Button
+          onClick={() => handleFilter('CANCELED')}
+          sx={{
+            marginLeft: "20px",
+            color: "inherit",
+            "&:hover": {
+              backgroundColor: "#F0F0F0",
+              color: "red",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+            },
+          }}
+        >
+          CANCELED
+        </Button>
+      </div>
+       
+        <Typography variant="h5" gutterBottom marginLeft={10} marginTop={5} >Order List</Typography>
         {orderList.length > 0 ? (
           <Box display="flex" flexWrap="wrap" gap={5} marginLeft={10}>
             
             {orderList
               .filter(order => order.orderStatus === fltr)
-              .filter(order => search === '' || order.orderId === parseInt(search) ||  order.orderBy.replace(/@[\w.-]+$/, '') === search)
+              .filter(order => search === '' ||order.orderId.toString().includes(search) || order.orderBy.replace(/@[\w.-]+$/, '').toLowerCase().includes(search.toLowerCase()))
               .map(order => (
                 <Card key={order.orderId} variant="outlined" sx={{ display: 'flex', flexDirection: 'column', height: "500px", width: "400px", paddingRight: "10px" }}>
                   <CardContent sx={{ flexGrow: 1 }}>
@@ -186,6 +271,7 @@ function MyViewOrders(props) {
                           color="warning"
                           sx={{
                             display: 'flex',
+                            color: 'black',
                             alignItems: 'center',
                             marginTop: 1,
                             backgroundColor: order.orderStatus === 'DONE'
