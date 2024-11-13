@@ -19,7 +19,8 @@ const SignInUpForm = ({ onSignIn }) => {
   const [signInData, setSignInData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [token, setToken] = useState('')
+  const [token, setToken] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('')
   
   const [errorCondition, setErrorCondition] = useState ();;
 
@@ -54,28 +55,34 @@ const SignInUpForm = ({ onSignIn }) => {
   const handleSignUpSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    try {
-      const response = await axios.post(`${baseUrl}/auth/signup`, signUpData);
-      console.log("Sign-Up successful:", response.data);
-      setRightPanelActive(false);
-      setError('');
-      setErrorCondition(response.status)
-    } catch (error) {
-      if (error.response.status === 400) {
-        setError('Email already in use. Please try again.');
-      } else {
-        setError('Sign Up failed. Please try again.');
+  
+    if (confirmPassword === signUpData.password) {
+      try {
+        const response = await axios.post(`${baseUrl}/auth/signup`, signUpData);
+        console.log("Sign-Up successful:", response.data);
+        setRightPanelActive(false);
+        setError('');
+        setErrorCondition(response.status);
+      } catch (error) {
+        if (error.response.status === 400) {
+          setError('Email already in use. Please try again.');
+        } else {
+          setError('Sign Up failed. Please try again.');
+        }
+        console.error('Sign-Up error:', error);
+      } finally {
+        setIsLoading(false);
       }
-      console.error('Sign-Up error:', error);
-      console.error(error);
-      
-    } finally {
-      setIsLoading(false);
-     
-     
+    } else if (confirmPassword !== signUpData.password) {
+      setError('Passwords do not match.');
+      setIsLoading(false)
     }
   };
+  
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmPassword(e.target.value);
+  };
+  
 
   const handleSignInSubmit = async (e) => {
     e.preventDefault();
@@ -131,8 +138,17 @@ const SignInUpForm = ({ onSignIn }) => {
           <h1 style={{ marginTop: 10 }}>Create Account</h1>
          
           <input className='emailInput' type="text" name="email" placeholder="Email" onChange={handleSignUpChange} required  />
-          <input type="text" name="username" placeholder="Enter Username"  autoComplete="off" onChange={handleSignUpChange} required style={{ marginTop: 20 }}/>
-          <input type="password" name="password" placeholder="Password" onChange={handleSignUpChange} required style={{ marginTop: 20 }}/>
+          <input type="text" name="username" placeholder="Enter Username"  autoComplete="off" onChange={handleSignUpChange} required/>
+          <input type="password" name="password" placeholder="Password" onChange={handleSignUpChange} required style={{ marginTop: 10 }}/>
+          <input 
+            type="password" 
+            name="confirmPassword" 
+            placeholder="Confirm Password" 
+            onChange={handleConfirmPasswordChange} 
+            required 
+            style={{ marginTop:5 }}
+          />
+
           <button className='signupBtnSbt' type="submit" disabled={isLoading} >Sign Up</button>
           {error && <p className="error">{error}</p>}
         </form>
