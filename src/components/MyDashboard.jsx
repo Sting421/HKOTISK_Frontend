@@ -62,7 +62,7 @@ function MyDashboard({ window }) {
   const [pathname, setPathname] = useState('/dashboard');
   const [token, setToken] = useState('');
   const [products, setProducts] = useState([]);
-  const [filter, setFilter] = useState([]);
+  const [isDeleted, setIsDeleted] = useState(false);
  
 
  
@@ -77,7 +77,7 @@ function MyDashboard({ window }) {
     if (token) {
       fetchData(`${baseUrl}/user/product`, token, setProducts);
     }
-  }, [pathname]);
+  }, [pathname,isDeleted]);
 
   const router = useMemo(() => ({
     pathname,
@@ -116,6 +116,7 @@ function MyDashboard({ window }) {
           itemSize={product.sizes}
           itemQuantity={product.quantity}
           myToken={token}
+          setIsDeleted={setIsDeleted}
         />
       ))}
       {pathname === '/Staff/AddProducts' && <AddProducts baseUrl={baseUrl} getToken={token} />}

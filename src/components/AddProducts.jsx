@@ -4,7 +4,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Autocomplete, Checkbox, FormControlLabel, TextField ,Grid, Grid2, InputAdornment} from '@mui/material';
+import { Autocomplete, Checkbox, FormControlLabel, TextField ,Grid, InputAdornment} from '@mui/material';
 import axios from 'axios';
 import Logo from '../assets/componentsRes/hkotiskLogo.png';
 
@@ -99,7 +99,7 @@ export default function AddProducts() {
 
   return (
     
-    <Card sx={{ marginLeft:'30%', marginTop:'7%', borderRadius: '2%', width: '30rem', backgroundColor: 'inherit', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', height: '700px', minWidth: '800px' }}>
+    <Card sx={{ marginLeft:'30%', marginTop:'3%', borderRadius: '2%', width: '30rem', backgroundColor: 'inherit', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', height: '700px', minWidth: '800px' }}>
       <h1 style={{ marginLeft: 30, marginTop: 30 }}>Add Product</h1>
       <CardContent>
         <Grid container spacing={3}>
@@ -108,13 +108,13 @@ export default function AddProducts() {
               src={Logo}
               alt="logo"
               style={{
-                width: '13rem',
+                width: '20rem',
                 height: '11rem',
                 objectFit: 'cover',
                 borderRadius: '0.375rem',
-                border: '2px solid #000',
+                border: '2px',
                 backgroundColor: '#f0f0f0',
-                padding: '8px',
+                padding: '58px',
               }}
             />
           </Grid>

@@ -8,7 +8,7 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const sizeOptions = ['S', 'M', 'L'];
 
-function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescription, itemSize, itemQuantity, myToken }) {
+function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescription, itemSize, itemQuantity, myToken,setIsDeleted }) {
   const [quantity, setQuantity] = useState(1);
   const [size, setSize] = useState('S');
   const [error, setError] = useState('');
@@ -36,6 +36,7 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
       });
       console.log(response);
       setOpen(true);
+      setIsDeleted(true);
     } catch (error) {
       setError('Failed to delete product. Please try again.');
       console.error(error);
@@ -99,7 +100,7 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
       setError('');
       setOpenDialog(false);
     } else {
-      setError('Input mismatch');
+      setError('Input mismatch, Please input the item name');
     }
   };
 
@@ -225,12 +226,16 @@ function MyUpdateProducts({ productId, price, itemName, itemImage, itemDescripti
                   autoFocus
                   margin="dense"
                   id="delFeild"
-                  label="Confirm Name"
+                  label="Confirm Delete"
                   fullWidth
                   variant="standard"
                   value={delFeild}
-                  onChange={(e) => setDelFeild(e.target.value)}
+                  onChange={(e) => {
+                    setDelFeild(e.target.value);
+                    setError('');
+                }}
                 />
+                <p style={{color:"red"}}>{error}</p>
               </DialogContent>
               <DialogActions>
                 <Button 
