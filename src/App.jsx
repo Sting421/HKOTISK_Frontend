@@ -1,7 +1,7 @@
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import SignInUpForm from './components/SignInUpForm';
+import SignInUpForm from './components/auth/SignInUpForm';
 import MyDashboard from './components/MyDashboard';
 import LandingPage from './components/LandingPage';
 import { useState } from 'react';

@@ -1,0 +1,246 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Alert, Button, Card, CardContent, Grid, IconButton, Snackbar, Typography } from '@mui/material';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
+import axios from 'axios';
+import PropTypes from 'prop-types';
+import { Label } from '@mui/icons-material';
+
+const baseUrl = import.meta.env.VITE_BASE_URL;
+
+function MyItemCard({
+  itemSize = ['S'],
+  price = [0],
+  productId,
+  itemQuantity = 1,
+  itemImage,
+  itemName,
+  itemDescription,
+  myToken,
+  setisUpated,
+}) {
+  const [size, setSize] = useState(itemSize[0] || 'S');
+  const [priceValue, setPrice] = useState(parseFloat(price[0]) || 0);
+  const [quantity, setQuantity] = useState(1);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [token, setToken] = useState(myToken);
+  const [open, setOpen] = useState(false);
+  const [listQuantity, setListQuantity] = useState(parseInt(itemQuantity[0]) || 0);
+
+  useEffect(() => {
+    setToken(myToken);
+  }, [myToken]);
+
+  const itemData = useMemo(
+    () => ({
+      productId: parseInt(productId, 10),
+      quantity: quantity,
+      price: parseFloat(priceValue),
+      size: String(size),
+    }),
+    [productId, size, quantity, priceValue]
+  );
+
+  // const incrementQuantity = useCallback(() => {
+  //   setQuantity((prev) => {
+  //     if (itemQuantity > 1 && prev < itemQuantity) {
+  //       setisUpated(true);
+  //       return prev + 1;
+  //     }
+  //     return prev;
+  //   });
+  //   setError('');
+  // }, [itemQuantity,setisUpated]);
+
+  // const decrementQuantity = useCallback(() => {
+  //   setQuantity((prev) => Math.max(1, prev - 1));
+  // }, []);
+
+  const incrementQuantity = () => {
+    setQuantity((prev) => {
+      const newQuantity = prev + 1;
+      setQuantity((prevData) => ({ ...prevData, quantity: newQuantity }));
+      return newQuantity;
+    });
+   
+  };
+
+  const decrementQuantity = () => {
+    setQuantity((prev) => {
+      const newQuantity = Math.max(1, prev - 1);
+      setQuantity((prevData) => ({ ...prevData, quantity: newQuantity }));
+      return newQuantity;
+    });
+   
+  };
+
+
+
+
+  const handleAddToCart = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    if (!token) {
+      setError('You must be logged in to add items to the cart.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!size) {
+      setError('Please select a size.');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${baseUrl}/user/cart`, itemData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log('Added to Cart successfully:', response.data);
+      setOpen(true);
+      setQuantity(1);
+    } catch (error) {
+      setError('Failed to add to cart. Please try again.');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleClose = (reason) => {
+    if (reason === 'clickaway') return;
+    setOpen(false);
+    setError('');
+  };
+
+  useEffect(() => {
+    if (itemSize.length === 1) setSize(itemSize[0]);
+    if (price.length === 1) setPrice(parseFloat(price[0]));
+  }, [itemSize, price]);
+
+  return (
+    <Card
+      sx={{
+        borderRadius: '4%',
+        width: '30rem',
+        backgroundColor: 'inherit',
+        boxShadow: '0px 4px 6px rgba(0,0,0,0.1)',
+        maxHeight: '400px',
+        maxWidth: '600px',
+        minHeight: '300px',
+        minWidth: '600px',
+      }}
+    >
+      <CardContent>
+        <Grid container spacing={3}>
+          <Grid item xs={6}>
+            <img
+              src={`${itemImage}?height=60&width=60`}
+              alt={itemName}
+              style={{ width: '13rem', height: '11rem', objectFit: 'cover', borderRadius: '0.375rem' }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="h6">{itemName}</Typography>
+            <Typography color="#883C40">P{priceValue.toFixed(2)}</Typography>
+            <Typography variant="body2" color="textSecondary" sx={{ marginTop: '0.5rem' }}>
+              {itemDescription}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" sx={{ marginTop: '0.5rem' }}>
+              Available: {listQuantity}
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '30px', marginLeft: '50px' }}>
+              <IconButton size="small" onClick={decrementQuantity}>
+                <RemoveCircleOutlineIcon fontSize="medium" />
+              </IconButton>
+              <Typography>{quantity}</Typography>
+              <IconButton size="small" onClick={incrementQuantity}>
+                <AddCircleOutlineRoundedIcon fontSize="medium" />
+              </IconButton>
+            </div>
+                 
+           
+          </Grid>
+          <Grid item xs={6}>
+            {itemSize.length > 1 && (
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '20px', marginLeft: '15px' }}>
+                <Typography variant="body2" style={{ fontWeight: '500', marginTop: '5px' }}>Size</Typography>
+                {itemSize.map((option, idx) => (
+                  <Button
+                    key={option}
+                    variant={size === option ? 'contained' : 'outlined'}
+                    size="small"
+                    sx={{
+                      borderRadius: '0% 25% 25% 25% / 54% 54% 0% 46%',
+                      backgroundColor: size === option ? '#757575' : 'transparent',
+                      color: size === option ? '#ffffff' : '#757575',
+                      paddingRight: '30px',
+                      paddingLeft: '30px',
+                      borderColor: '#757575',
+                      '&:hover': {
+                        backgroundColor: size === option ? '#616161' : 'rgba(117, 117, 117, 0.1)',
+                        borderColor: size === option ? '#616161' : '#757575',
+                      },
+                    }}
+                    onClick={() => {
+                      setSize(option);
+                      setPrice(parseFloat(price[idx]));
+                      setListQuantity(parseInt(itemQuantity[idx]));
+                      setError('');
+                    }}
+                  >
+                    {option}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </Grid>
+          <Grid item xs={12}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginLeft: '10px', marginTop: '9px' }}>
+              <Button
+                variant="contained"
+                sx={{ borderRadius: '4%', backgroundColor: '#883C40', '&:hover': { backgroundColor: '#6f2b2f' }, paddingLeft: '40px', paddingRight: '40px' }}
+                onClick={handleAddToCart}
+                disabled={isLoading}
+              >
+                Add to Cart
+              </Button>
+              <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="success" variant="filled" sx={{ width: '100%' }}>
+                  Added to Cart successfully
+                </Alert>
+              </Snackbar>
+              <Snackbar open={Boolean(error)} autoHideDuration={3000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="error" variant="filled" sx={{ width: '100%' }}>
+                  {error}
+                </Alert>
+              </Snackbar>
+            </div>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
+  );
+}
+
+MyItemCard.propTypes = {
+  itemSize: PropTypes.arrayOf(PropTypes.string),
+  price: PropTypes.arrayOf(PropTypes.number),
+  productId: PropTypes.number.isRequired,
+  itemQuantity: PropTypes.arrayOf(PropTypes.number),
+  itemImage: PropTypes.string.isRequired,
+  itemName: PropTypes.string.isRequired,
+  itemDescription: PropTypes.string,
+  myToken: PropTypes.string,
+  setisUpated: PropTypes.func,
+};
+
+export default MyItemCard;

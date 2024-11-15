@@ -8,18 +8,18 @@ import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import InfoIcon from '@mui/icons-material/Info';
-import MyItemCard from './MyItemCard';
+import MyItemCard from './ui/MyItemCard';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import axios from 'axios';
 import './css/dashboard.css'; 
-import AddProducts from './AddProducts';
+import AddProducts from './staff/AddProducts';
 import MyCart from './MyCart';
-import MyLogOut from './MyLogOut';
+import MyLogOut from './auth/MyLogOut';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
-import MyUpdateProducts from './MyUpdateProducts';
-import MyViewOrders from './MyViewOrders';
+import MyUpdateProducts from './staff/MyUpdateProducts';
+import MyViewOrders from './staff/MyViewOrders';
 
 import Logo from "../assets/componentsRes/hkotiskLogo.png"
 const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -35,6 +35,8 @@ const NAVIGATION = [
       { segment: 'UpdateProducts', title: 'UpdateProducts', icon: <ModeEditOutlineIcon /> },
     
       { segment: 'ViewOrders', title: 'ViewOrders', icon: <FormatListBulletedIcon /> },
+
+      { segment: 'WaitingArea', title: 'WaitingArea', icon: <FormatListBulletedIcon /> },
     ],
   },
   { kind: 'divider' },
@@ -52,7 +54,10 @@ const fetchData = async (url, token, setData) => {
     const response = await axios.get(url, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (response.status === 200) setData(response.data.oblist);
+    if (response.status === 200){
+      setData(response.data.oblist);
+      console.log("This is the New list: ",response);
+    }
   } catch (error) {
     console.error(`Error fetching data from ${url}:`, error);
   }
@@ -77,6 +82,7 @@ function MyDashboard({ window }) {
     if (token) {
       fetchData(`${baseUrl}/user/product`, token, setProducts);
     }
+    setIsDeleted(false);
   }, [pathname,isDeleted]);
 
   const router = useMemo(() => ({
@@ -84,11 +90,19 @@ function MyDashboard({ window }) {
     searchParams: new URLSearchParams(),
     navigate: setPathname,
   }), [pathname]);
+  const handleOnChangeSearch = (e) => {
+    setSearch(e.target.value);
+    console.log(search)
+  };
+  
 
   const DemoPageContent = useCallback(() => (
     <Box sx={{ py: 4, display: 'flex', flexWrap: 'wrap', gap: '40px' }}>
       {pathname === '/dashboard' && <Typography>Welcome to the Dashboard</Typography>}
-      {pathname === '/Snacks' && products.map(product => (
+      {pathname === '/Snacks' && 
+      products
+      // .filter(order => search === '' ||order.orderId.toString().includes(search) || order.orderBy.replace(/@[\w.-]+$/, '').toLowerCase().includes(search.toLowerCase()))
+      .map(product => (
         
         <MyItemCard
           key={product.productId}
@@ -121,6 +135,8 @@ function MyDashboard({ window }) {
       ))}
       {pathname === '/Staff/AddProducts' && <AddProducts baseUrl={baseUrl} getToken={token} />}
       {pathname === '/Staff/ViewOrders' && <MyViewOrders token={token}/>}
+      {pathname === '/Staff' && <MyViewOrders token={token}/>}
+      {pathname === '/Staff/WaitingArea' && <MyViewOrders token={token}/>}
     </Box>
   ), [pathname, products, token]);
   

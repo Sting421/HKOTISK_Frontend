@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CloseIcon from '@mui/icons-material/Close';
-import MyCartItemCard from './MyCartItemCard';
+import MyCartItemCard from './ui/MyCartItemCard';
 import axios from 'axios';
 import { Alert, Badge, Card, CardContent, IconButton, Snackbar, Typography } from '@mui/material';
 
