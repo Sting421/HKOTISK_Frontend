@@ -7,7 +7,6 @@ import Typography from '@mui/material/Typography';
 import { Autocomplete, Checkbox, FormControlLabel, TextField ,Grid, InputAdornment} from '@mui/material';
 import axios from 'axios';
 import Logo from './res/hkotiskLogo.png';
-import NumbersIcon from '@mui/icons-material/Numbers';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -110,7 +109,7 @@ export default function AddProducts() {
 
   return (
     
-    <Card sx={{ marginLeft:'25%', marginTop:'3%', borderRadius: '2%', width: '30rem', backgroundColor: 'inherit', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', minHeight: '420px', minWidth: '800px' }}>
+    <Card sx={{  marginTop:'3%', borderRadius: '2%', width: '30rem', backgroundColor: 'inherit', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', minHeight: '420px', minWidth: '800px' }}>
       <h1 style={{ marginLeft: 30, marginTop: 30 }}>Add Product</h1>
       <CardContent>
         <Grid container spacing={3}>

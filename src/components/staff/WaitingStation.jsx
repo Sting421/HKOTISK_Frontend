@@ -86,13 +86,11 @@ function MyViewOrders(props) {
     };
 
     socket.onerror = (error) => {
-        console.error('WebSocket error1: ', error);
+        console.error('WebSocket error: ', error);
     };
 
     return () => {
-      if (socket.readyState === WebSocket.OPEN) {
         socket.close();
-      }
     };
 }, []);
 

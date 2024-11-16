@@ -37,7 +37,7 @@ export default function MyCart() {
       fetchData(`${baseUrl}/user/product`, setProductData);
     }
     setIsDeleted(false);
-  }, [token, drawerOpen, isDeleted]);
+  }, [ drawerOpen, isDeleted]);
 
   const fetchData = async (url, data) => {
     try {
