@@ -26,6 +26,7 @@ import { SearchIcon } from 'lucide-react';
 import { InputAdornment, TextField } from '@mui/material';
 import MyUpdateProductNew from './staff/MyUpdateProduct';
 import MyUpdateProduct from './staff/MyUpdateProduct';
+import ImageUploader from './staff/ImageUploader';
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 
@@ -44,6 +45,7 @@ const STAFF_NAVIGATION = [
       { segment: 'UpdateProducts', title: 'Update Products', icon: <ModeEditOutlineIcon /> },
       { segment: 'ViewOrders', title: 'View Orders', icon: <FormatListBulletedIcon /> },
       { segment: 'WaitingArea', title: 'Waiting Area', icon: <FormatListBulletedIcon /> },
+      { segment: 'ImageUpload', title: 'ImageUpload Area', icon: <FormatListBulletedIcon /> },
   
   { kind: 'divider' },
   { segment: 'Info', title: 'Info', icon: <InfoIcon /> },
@@ -85,26 +87,13 @@ const fetchData = async (url, token, setData) => {
     console.error(`Error fetching data from ${url}:`, error);
   }
 };
-const getRole = async (url, token, setData) => {
-  try {
-    const response = await axios.get(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (response.status === 200){
-      setData(response.data.role);
-     
-    }
-  } catch (error) {
-    console.error(`Error fetching data from ${url}:`, error);
-  }
-};
 
 function MyDashboard({ window }) {
   const [pathname, setPathname] = useState('/Snacks');
   const [token, setToken] = useState('');
   const [products, setProducts] = useState([]);
   const [isDeleted, setIsDeleted] = useState(false);
-  const [myRole,setMyRole] = useState('');
+  const myRole =  JSON.parse(sessionStorage.getItem('role'));
   const [newProduct, setNewProduct] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -112,14 +101,9 @@ function MyDashboard({ window }) {
     const savedToken = sessionStorage.getItem('token');
     if (savedToken) setToken(JSON.parse(savedToken));
     else console.log("No Data found");
-  
+    console.log(myRole);
   }, []);
-  useEffect(() => {
-    if (token) {
-    getRole(`${baseUrl}/auth/role`, token, setMyRole);
-    }
-  }, [token]);
-
+ 
   useEffect(() => {
     if (token) {
       fetchData(`${baseUrl}/user/product`, token, setProducts);
@@ -275,6 +259,7 @@ function MyDashboard({ window }) {
       { pathname === '/AddProducts' && <AddProducts baseUrl={baseUrl} getToken={token} />}
       { pathname === '/ViewOrders' && <MyViewOrders token={token}/>}
       { pathname === '/WaitingArea' && <MyViewOrders token={token}/>}
+      { pathname === '/ImageUpload' && <ImageUploader/>}
     </Box>
   ), [pathname, products, search,token]);
   

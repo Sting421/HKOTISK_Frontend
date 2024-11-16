@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Alert, Autocomplete, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, Snackbar, TextField, Typography, Box } from '@mui/material';
+import { Alert, Autocomplete, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, Snackbar, TextField, Typography, Box, InputAdornment } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 
@@ -60,7 +60,7 @@ function MyUpdateProduct({ productId, price, itemName, itemImage, itemDescriptio
     e.preventDefault();
     setIsLoading(true);
 
-    const { productId, description, productName, prices, quantity, sizes, category, productImage } = productData;
+    const { productId, description, productName, prices, quantity, sizes, category } = productData;
 
     const requestBody = {
       productId,
@@ -173,6 +173,9 @@ function MyUpdateProduct({ productId, price, itemName, itemImage, itemDescriptio
                 value={productData.prices[index]}
                 onChange={(e) => handlePriceChange(index, e.target.value)}
                 fullWidth
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">₱</InputAdornment>,
+                }}
                 sx={{ marginBottom: '1rem' }}
               />
             </Grid>
@@ -182,6 +185,9 @@ function MyUpdateProduct({ productId, price, itemName, itemImage, itemDescriptio
                 value={productData.quantity[index]}
                 onChange={(e) => handleQuantityChange(index, e.target.value)}
                 fullWidth
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">#</InputAdornment>,
+                }}
                 sx={{ marginBottom: '1rem' }}
               />
             </Grid>

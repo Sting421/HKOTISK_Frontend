@@ -23,9 +23,7 @@ const MyLogOut = () => {
       console.log('SignOut successful:', response.data);
       setSuccessMessage('You have been successfully signed out.');
       sessionStorage.removeItem('token');
-      localStorage.removeItem('orderList');
-
-      // Redirect to the sign-in page
+      sessionStorage.removeItem('role');
       navigate('/auth');
     } catch (error) {
       console.error('Error:', error.message);

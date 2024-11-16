@@ -104,6 +104,7 @@ const SignInUpForm = ({ onSignIn }) => {
       if (response.data.token) {
         setToken(response.data.token); 
         sessionStorage.setItem('token', JSON.stringify(response.data.token));
+        sessionStorage.setItem('role', JSON.stringify(response.data.role));
         onSignIn(); 
         navigate('/dashboard');
       }

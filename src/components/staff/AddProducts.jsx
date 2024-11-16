@@ -7,20 +7,26 @@ import Typography from '@mui/material/Typography';
 import { Autocomplete, Checkbox, FormControlLabel, TextField ,Grid, InputAdornment} from '@mui/material';
 import axios from 'axios';
 import Logo from './res/hkotiskLogo.png';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export default function AddProducts() {
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [hovered, setHovered] = useState(false);
+
   const [token, setToken] = useState();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [productData, setProductData] = useState({
     description: '',
     productName: '',
-    prices: [0, 0, 0], // Default values for prices
+    prices: [0, 0, 0], 
     quantity: [],
     sizes: [],
     category: '',
+    productImage: null,
   });
 
   useEffect(() => {
@@ -28,6 +34,39 @@ export default function AddProducts() {
     if (savedToken) setToken(JSON.parse(savedToken));
     else console.log('No Data found');
   }, []);
+
+    const handleImageChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+          setSelectedImage(file);
+
+          const reader = new FileReader();
+          reader.onload = () => setPreview(reader.result);
+          reader.readAsDataURL(file);
+          console.log(file);
+        }
+    };
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (!selectedImage) return;
+
+      const formData = new FormData();
+      formData.append('image', selectedImage);
+
+      try {
+          const response = await fetch('/api/upload-image', {
+              method: 'POST',
+              body: formData,
+          });
+          const result = await response.json();
+          console.log(result);
+          
+      } catch (error) {
+          console.error('Error uploading image:', error);
+          console.log('this is image:',formData)
+      }
+    };
+
 
   const handleProductChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -106,7 +145,7 @@ export default function AddProducts() {
       setIsLoading(false);
     }
   };
-
+  
   return (
     
     <Card sx={{  marginTop:'3%', borderRadius: '2%', width: '30rem', backgroundColor: 'inherit', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', minHeight: '420px', minWidth: '800px' }}>
@@ -114,20 +153,51 @@ export default function AddProducts() {
       <CardContent>
         <Grid container spacing={3}>
           <Grid item xs={6}>
-            <img
-              src={Logo}
-              alt="logo"
+        <div style={{ position: 'relative', width: '20rem', height: '11rem',}}>
+     
+          <img
+            src={preview || Logo}
+            alt="logo"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              borderRadius: '0.375rem',
+              backgroundColor: '#f0f0f0',
+            }}
+          />
+          <label
+              htmlFor="upload-image"
               style={{
-                width: '20rem',
-                height: '11rem',
-                objectFit: 'cover',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                color: '#fff',
+                padding: '2.3rem 8.4rem',
                 borderRadius: '0.375rem',
-                border: '2px',
-                backgroundColor: '#f0f0f0',
-                padding: '58px',
+                cursor: 'pointer',
+                opacity: hovered ? 1 : 0,
+                transition: 'opacity 0.3s ease',
+                textAlign: 'center',
               }}
-            />
+              onMouseEnter={() => setHovered(true)}
+              onMouseLeave={() => setHovered(false)}
+            >
+              <FileUploadIcon style={{ fontSize: '3rem' }} />
+              Upload Image
+            </label>
+          <input
+            id="upload-image"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            style={{ display: 'none' }}
+          />
+        </div>
           </Grid>
+          
           <Grid item xs={6}>
             
               <TextField
