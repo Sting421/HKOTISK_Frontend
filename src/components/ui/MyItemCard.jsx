@@ -124,7 +124,7 @@ function MyItemCard({
     sx={{
       marginLeft: '12px',
       borderRadius: '0.5rem',
-      width: '30rem',
+      width: '20rem',
       backgroundColor: 'inherit',
       boxShadow: '0px 4px 6px rgba(0,0,0,0.1)',
       overflow: 'hidden',
@@ -138,7 +138,7 @@ function MyItemCard({
         <img
           src={`${itemImage}?height=400&width=400`}
           alt={itemName}
-          style={{ width: '100%', height: '200px', padding:'50px' }}
+          style={{ width: '100%', height: '180px', padding:'50px' }}
         />
       </div>
       <div style={{ padding: '1rem' }}>
@@ -147,7 +147,7 @@ function MyItemCard({
             <Typography variant="h6" sx={{ fontWeight: '600' }}>
               {itemName}
             </Typography>
-            <Typography variant="body2" color="textSecondary" fontSize={"25px"}>
+            <Typography variant="body2" color="textSecondary" fontSize={"22px"}>
             ₱{priceValue.toFixed(2)}
             </Typography>
           </div>
@@ -201,6 +201,7 @@ function MyItemCard({
           </div>
         )}
       </div>
+      <Divider/>
       <div style={{ flexGrow: 1 }}></div>
       <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

@@ -19,12 +19,13 @@ import MyCart from './MyCart';
 import MyLogOut from './auth/MyLogOut';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
-import MyUpdateProducts from './staff/MyUpdateProducts';
 import MyViewOrders from './staff/MyViewOrders';
 
 import Logo from "../assets/componentsRes/hkotiskLogo.png"
 import { SearchIcon } from 'lucide-react';
 import { InputAdornment, TextField } from '@mui/material';
+import MyUpdateProductNew from './staff/MyUpdateProduct';
+import MyUpdateProduct from './staff/MyUpdateProduct';
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 
@@ -254,8 +255,11 @@ function MyDashboard({ window }) {
 
 
 
-      { pathname === '/UpdateProducts' && products.map(product => (
-        <MyUpdateProducts
+      { pathname === '/UpdateProducts' &&
+       products
+       .sort((a, b) => a.productName.localeCompare(b.productName))
+       .map(product => (
+        <MyUpdateProduct
           key={product.productId}
           productId={parseInt(product.productId, 10)}
           price={product.prices}

@@ -156,91 +156,34 @@ function MyViewOrders(props) {
     ) : (
       
       <div>
-        <TextField
-        
-          label="Search"
-          name="search"
-          variant="outlined"
-          color="inherit"
-          onChange={handleOnChangeSearch}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
+        <TextField label="Search" name="search" variant="outlined" color="inherit"  onChange={handleOnChangeSearch}
+          InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon /> </InputAdornment> ),}}
           sx={{
-            width: "90%",
-            marginLeft: "20px",
-            marginBottom: "20px",
-            borderRadius: "8px",
-            "& .MuiFormLabel-root": {
-              fontWeight: "bold",
-              color: "black", 
-            },
-            "& .MuiFormLabel-root.Mui-focused": {
-              color: "#F2C300", 
-            },
+            width: "90%", marginLeft: "20px",marginBottom: "20px",borderRadius: "8px",
+            "& .MuiFormLabel-root": { fontWeight: "bold", color: "black",  },
+            "& .MuiFormLabel-root.Mui-focused": { color: "#F2C300",  },
             "& .MuiOutlinedInput-root": {
-              "& fieldset": {
-                borderColor: "black",
-              },
-              "&:hover fieldset": {
-                borderColor: "#F2C300", 
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: "#F2C300", 
-              },
-              "&:hover .MuiInputBase-input": {
-                color: "#F2C300", 
-              },
-            },
-            "&:hover .MuiSvgIcon-root": {
-              color: "#F2C300",
-            },
+            "& fieldset": { borderColor: "black",},
+            "&:hover fieldset": { borderColor: "#F2C300", },
+            "&.Mui-focused fieldset": { borderColor: "#F2C300", },
+            "&:hover .MuiInputBase-input": {color: "#F2C300",  },},
+            "&:hover .MuiSvgIcon-root": {color: "#F2C300",},
           }}
         />
       <div>
         <Button
           onClick={() => handleFilter('DONE')}
-          sx={{
-            marginLeft: "20px",
-            color: "inherit",
-            "&:hover": {
-              backgroundColor: "#F0F0F0", 
-              color: "green",
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
-            },
-          }}
+          sx={{ marginLeft: "20px", color: "inherit", "&:hover": {backgroundColor: "#F0F0F0",  color: "green", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",},}}
         >
           Done
         </Button>
-        <Button
-          onClick={() => handleFilter('PENDING')}
-          sx={{
-            marginLeft: "20px",
-            color: "inherit",
-            "&:hover": {
-              backgroundColor: "#F0F0F0",
-              color: "orange",
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
-            },
-          }}
-        >
+        <Button onClick={() => handleFilter('PENDING')} sx={{ marginLeft: "20px",color: "inherit","&:hover": {backgroundColor: "#F0F0F0", color: "orange",boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",},}}>
           Pending
         </Button>
         <Button
           onClick={() => handleFilter('CANCELED')}
-          sx={{
-            marginLeft: "20px",
-            color: "inherit",
-            "&:hover": {
-              backgroundColor: "#F0F0F0",
-              color: "red",
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
-            },
-          }}
+          sx={{ marginLeft: "20px", color: "inherit",
+            "&:hover": {backgroundColor: "#F0F0F0", color: "red",boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", }, }}
         >
           CANCELED
         </Button>
@@ -267,24 +210,13 @@ function MyViewOrders(props) {
                         </Box>
                       </span>
                       <span style={{ fontSize: '18px', marginRight: '10px' }}>
-                        <Badge
-                        
-                          color="warning"
-                          sx={{
-                            display: 'flex',
-                            color: 'black',
-                            alignItems: 'center',
-                            marginTop: 1,
-                            backgroundColor: order.orderStatus === 'DONE'
-                            ? '#A9E2A2'  
-                            : order.orderStatus === 'PENDING'
-                            ? '#FFFF8F'  
-                            : '#F4A6A6', 
-
-                            padding: '8px 12px',
-                            borderRadius: '12px',
-                          }}
-                        >
+                      <Badge
+                        color="warning"
+                        sx={{display: 'flex',color: 'black',alignItems: 'center',marginTop: 1,backgroundColor: {DONE: '#A9E2A2',PENDING: '#FFFF8F',default: '#F4A6A6',}[order.orderStatus] || '#F4A6A6', 
+                          padding: '8px 12px',
+                          borderRadius: '12px',
+                        }}
+                      >
                           <AccessTime sx={{ fontSize: 16, marginRight: 1 }} />
                           {order.orderStatus}
                         </Badge>
@@ -296,12 +228,7 @@ function MyViewOrders(props) {
                         {order.products.map(product => (
                           <Box key={product.cartId} display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 2 }}>
                            {order.orderStatus === "PENDING" ? (
-                              <Checkbox
-                                id={`product-${product.cartId}`}
-                                cartid={`product-${product.cartId}`}
-                                checked={checkedItems[order.orderId]?.[product.cartId] || false}
-                                onChange={() => handleCheckboxChange(order.orderId, product.cartId)}
-                              />
+                              <Checkbox id={`product-${product.cartId}`} cartid={`product-${product.cartId}`} checked={checkedItems[order.orderId]?.[product.cartId] || false}onChange={() => handleCheckboxChange(order.orderId, product.cartId)}/>
                             ) : (
                               <div style={{ marginLeft: '20px' }}></div>
                             )}
@@ -355,12 +282,7 @@ function MyViewOrders(props) {
                             <>
                               <Button
                                 variant="contained"
-                                sx={{
-                                  backgroundColor: '#6ad661',
-                                  '&:hover': {
-                                    backgroundColor: '#74ef6a',
-                                  },
-                                }}
+                                sx={{backgroundColor: '#6ad661','&:hover': {backgroundColor: '#74ef6a', }, }}
                                 fullWidth
                                 onClick={() => handleUpdateOrder(order.orderId, order.orderBy, 'DONE')}
                                 disabled={!isAllChecked(order.orderId, order.products)}
@@ -370,12 +292,7 @@ function MyViewOrders(props) {
 
                               <Button
                                 variant="contained"
-                                sx={{
-                                  backgroundColor: '#8B4543',
-                                  '&:hover': {
-                                   backgroundColor: '#693432',
-                                  },
-                                }}
+                                sx={{backgroundColor: '#8B4543','&:hover': {backgroundColor: '#693432',},}}
                                 fullWidth
                                 onClick={() => handleClickOpen(order.orderId)}
                               >

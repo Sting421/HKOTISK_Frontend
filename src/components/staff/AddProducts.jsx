@@ -203,22 +203,19 @@ export default function AddProducts() {
           </Grid>
         </Grid>
           <TextField
-        id="description"
-        name="description"
-        label="Description"
-        placeholder="Product description"
-        value={productData.description}
-        variant="outlined"
-        fullWidth
-        multiline
-        rows={3}
-        sx={{ marginBottom: '1.5rem', marginTop: '1rem' }}
-        onChange={handleProductChange}
-        required
-      />
-
-       
-        
+              id="description"
+              name="description"
+              label="Description"
+              placeholder="Product description"
+              value={productData.description}
+              variant="outlined"
+              fullWidth
+              multiline
+              rows={3}
+              sx={{ marginBottom: '1.5rem', marginTop: '1rem' }}
+              onChange={handleProductChange}
+              required
+            />
         
         <Autocomplete
           disablePortal
