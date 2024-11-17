@@ -11,3 +11,5 @@ npx create-toolpad-app@latest
 npm install lucide-react
 
 npm install @fortawesome/fontawesome-free
+
+npm install cloudinary-react

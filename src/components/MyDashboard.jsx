@@ -1,5 +1,6 @@
-import  { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { createTheme } from '@mui/material/styles';
@@ -20,54 +21,14 @@ import MyLogOut from './auth/MyLogOut';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 import MyViewOrders from './staff/MyViewOrders';
-
-import Logo from "../assets/componentsRes/hkotiskLogo.png"
+import Logo from "../assets/componentsRes/hkotiskLogo.png";
 import { SearchIcon } from 'lucide-react';
 import { InputAdornment, TextField } from '@mui/material';
-import MyUpdateProductNew from './staff/MyUpdateProduct';
 import MyUpdateProduct from './staff/MyUpdateProduct';
 import ImageUploader from './staff/ImageUploader';
+import StaffProductsView from './staff/StaffProductsView';
+
 const baseUrl = import.meta.env.VITE_BASE_URL;
-
-
-const STUDENT_NAVIGATION = [
-  { segment: 'Favorites', title: 'Favorites', icon: <DashboardIcon /> },
-  { segment: 'Snacks', title: 'Snacks', icon: <FastfoodIcon /> },
-  { segment: 'Food', title: 'Food', icon: <LocalPizzaIcon /> },
-  { segment: 'Beverage', title: 'Beverage', icon: <LocalDrinkIcon /> },
-
-  { kind: 'divider' },
-  { segment: 'Info', title: 'Info', icon: <InfoIcon /> },
-];
-const STAFF_NAVIGATION = [
-      { segment: 'ViewProducts', title: 'View Products', icon: <AddCircleOutlineIcon /> },
-      { segment: 'AddProducts', title: 'Add Products', icon: <AddCircleOutlineIcon /> },
-      { segment: 'UpdateProducts', title: 'Update Products', icon: <ModeEditOutlineIcon /> },
-      { segment: 'ViewOrders', title: 'View Orders', icon: <FormatListBulletedIcon /> },
-      { segment: 'WaitingArea', title: 'Waiting Area', icon: <FormatListBulletedIcon /> },
-      { segment: 'ImageUpload', title: 'ImageUpload Area', icon: <FormatListBulletedIcon /> },
-  
-  { kind: 'divider' },
-  { segment: 'Info', title: 'Info', icon: <InfoIcon /> },
-];
-const NAVIGATION = [
-  { segment: 'Favorites', title: 'Favorites', icon: <DashboardIcon /> },
-  { segment: 'Snacks', title: 'Snacks', icon: <FastfoodIcon /> },
-  
-   
-  { segment: 'AddProducts', title: 'AddProducts', icon: <AddCircleOutlineIcon /> },
-  
-  { segment: 'UpdateProducts', title: 'UpdateProducts', icon: <ModeEditOutlineIcon /> },
-
-  { segment: 'ViewOrders', title: 'ViewOrders', icon: <FormatListBulletedIcon /> },
-
-  { segment: 'WaitingArea', title: 'WaitingArea', icon: <FormatListBulletedIcon /> },
-   
-
-  { kind: 'divider' },
-  { segment: 'Info', title: 'Info', icon: <InfoIcon /> },
-];
-
 
 const demoTheme = createTheme({
   cssVariables: { colorSchemeSelector: 'data-toolpad-color-scheme' },
@@ -89,28 +50,92 @@ const fetchData = async (url, token, setData) => {
 };
 
 function MyDashboard({ window }) {
-  const [pathname, setPathname] = useState('/Snacks');
+  const [pathname, setPathname] = useState(() => {
+    const role = JSON.parse(sessionStorage.getItem('role'));
+    return role === 'staff' ? '/manage-products' : '/Snacks';
+  });
   const [token, setToken] = useState('');
   const [products, setProducts] = useState([]);
   const [isDeleted, setIsDeleted] = useState(false);
   const myRole =  JSON.parse(sessionStorage.getItem('role'));
   const [newProduct, setNewProduct] = useState(false);
   const [search, setSearch] = useState('');
+  const navigate = useNavigate();
+
+  const STUDENT_NAVIGATION = useMemo(() => [
+    { segment: 'Favorites', title: 'Favorites', icon: <DashboardIcon /> },
+    { segment: 'Snacks', title: 'Snacks', icon: <FastfoodIcon /> },
+    { segment: 'Food', title: 'Food', icon: <LocalPizzaIcon /> },
+    { segment: 'Beverage', title: 'Beverage', icon: <LocalDrinkIcon /> },
+    { kind: 'divider' },
+    { segment: 'Info', title: 'Info', icon: <InfoIcon /> },
+  ], []);
+
+  const STAFF_NAVIGATION = useMemo(() => [
+    { segment: 'ViewOrders', title: 'Orders', icon: <FormatListBulletedIcon /> },
+    { segment: 'manage-products', title: 'Products', icon: <ModeEditOutlineIcon /> },
+    { kind: 'divider' },
+    { segment: 'Info', title: 'Info', icon: <InfoIcon /> },
+  ], []);
+
+  const NAVIGATION = useMemo(() => [
+    { segment: 'Favorites', title: 'Favorites', icon: <DashboardIcon /> },
+    { segment: 'Snacks', title: 'Snacks', icon: <FastfoodIcon /> },
+    { segment: 'AddProducts', title: 'AddProducts', icon: <AddCircleOutlineIcon /> },
+    { segment: 'UpdateProducts', title: 'UpdateProducts', icon: <ModeEditOutlineIcon /> },
+    { segment: 'ViewOrders', title: 'ViewOrders', icon: <FormatListBulletedIcon /> },
+    { segment: 'WaitingArea', title: 'WaitingArea', icon: <FormatListBulletedIcon /> },
+    { kind: 'divider' },
+    { segment: 'Info', title: 'Info', icon: <InfoIcon /> },
+  ], []);
+
+  const drawerItems = useMemo(() => [
+    {
+      text: 'Manage Products',
+      icon: <ModeEditOutlineIcon />,
+      path: '/manage-products',
+      component: <StaffProductsView />,
+      roles: ['staff']
+    },
+  ], []);
 
   useEffect(() => {
-    const savedToken = sessionStorage.getItem('token');
-    if (savedToken) setToken(JSON.parse(savedToken));
-    else console.log("No Data found");
-    console.log(myRole);
-  }, []);
- 
-  useEffect(() => {
-    if (token) {
-      fetchData(`${baseUrl}/user/product`, token, setProducts);
+    try {
+      const savedToken = sessionStorage.getItem('token');
+      if (savedToken) {
+        // Remove quotes if they exist
+        const cleanToken = savedToken.replace(/^"|"$/g, '');
+        setToken(cleanToken);
+      } else {
+        console.log("No token found");
+        // Redirect to login if no token
+        navigate('/auth');
+      }
+    } catch (error) {
+      console.error("Error retrieving token:", error);
+      // Redirect to login on error
+      navigate('/auth');
     }
-    setIsDeleted(false);
-    setNewProduct(false)
-  }, [isDeleted,newProduct]);
+  }, [navigate]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (token) {
+        try {
+          await fetchData(`${baseUrl}/user/product`, token, setProducts);
+        } catch (error) {
+          if (error.response?.status === 403) {
+            // Token expired or invalid, redirect to login
+            sessionStorage.removeItem('token');
+            navigate('/auth');
+          }
+        }
+      }
+      setIsDeleted(false);
+    };
+
+    fetchProducts();
+  }, [token, isDeleted, navigate]);
 
   const router = useMemo(() => ({
     pathname,
@@ -236,9 +261,6 @@ function MyDashboard({ window }) {
             />
           ))}
 
-
-
-
       { pathname === '/UpdateProducts' &&
        products
        .sort((a, b) => a.productName.localeCompare(b.productName))
@@ -256,10 +278,12 @@ function MyDashboard({ window }) {
           setIsDeleted={setIsDeleted}
         />
       ))}
-      { pathname === '/AddProducts' && <AddProducts baseUrl={baseUrl} getToken={token} />}
+      { pathname === '/AddProducts' && <AddProducts token={token} />}
       { pathname === '/ViewOrders' && <MyViewOrders token={token}/>}
+
       { pathname === '/WaitingArea' && <MyViewOrders token={token}/>}
       { pathname === '/ImageUpload' && <ImageUploader/>}
+      { pathname === '/manage-products' && <StaffProductsView token={token} />}
     </Box>
   ), [pathname, products, search,token]);
   
@@ -273,11 +297,9 @@ function MyDashboard({ window }) {
   }
   
  
-  
   return (
     <AppProvider
       navigation={myRole === 'staff' ?  STAFF_NAVIGATION : STUDENT_NAVIGATION}
-      // navigation={NAVIGATION}
       branding={{ logo: <img src={Logo} alt="Logo" />, title: '' }}
       router={router}
       theme={demoTheme}
