@@ -296,7 +296,9 @@ function MyViewOrders(props) {
                               <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <span style={{ fontSize: '20px' }}>
                                   {product.productName}
-                                  <span style={{ fontSize: '15px', color: '#8B4543' }}> {'(Size '}{product.productSize}{')'}</span>
+                                  <span style={{ fontSize: '15px', color: '#8B4543' }}>
+                                    {product.productSize ? ` (Size ${product.productSize})` : ''}
+                                  </span>
                                 </span>
                                 <div style={{ fontSize: '14px', marginTop: '5px', opacity: 0.8 }}>
                                   Quantity: {product.quantity}

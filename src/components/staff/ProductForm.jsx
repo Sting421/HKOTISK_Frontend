@@ -337,17 +337,8 @@ function ProductForm({
                   required
                 />
               </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="Quantity"
-                  name="noSizeQuantity"
-                  value={productData.noSizeQuantity}
-                  onChange={handleProductChange}
-                  required
-                />
-              </Grid>
+            
+              
             </Grid>
           )}
 

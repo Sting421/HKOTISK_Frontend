@@ -289,17 +289,19 @@ function MyItemCard({
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               {itemSize.map((s, index) => (
-                <SizeButton
-                  key={s}
-                  selected={size === s}
-                  onClick={() => {
-                    setSize(s);
-                    setPrice(price[index] || 0);
-                    setListQuantity(Array.isArray(itemQuantity) ? itemQuantity[index] : itemQuantity);
-                  }}
-                >
-                  {s}
-                </SizeButton>
+                price[index] > 0 && (
+                  <SizeButton
+                    key={s}
+                    selected={size === s}
+                    onClick={() => {
+                      setSize(s);
+                      setPrice(price[index] || 0);
+                      setListQuantity(Array.isArray(itemQuantity) ? itemQuantity[index] : itemQuantity);
+                    }}
+                  >
+                    {s}
+                  </SizeButton>
+                )
               ))}
             </Box>
           </Box>
