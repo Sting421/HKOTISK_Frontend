@@ -11,17 +11,19 @@ import PersonIcon from '@mui/icons-material/Person';
 import SearchIcon from '@mui/icons-material/Search'
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
+const wsURL = import.meta.env.VITE_WS_URL;
 
 function MyViewOrders(props) {
   const [token] = useState(props.token);
 
-  const [orderList, setOrderList] = useState([]);
+  const [orderData, setOrderData] = useState([]);
   const [isUpdated, setIsUpdated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const [checkedItems, setCheckedItems] = useState({});
   const [openDialog, setOpenDialog] = useState({});
-  const prevOrderList = useRef();
+  const [product,setProduct] = useState([]);
+  const prevOrderData = useRef();
   const [fltr, setFltr] = useState('PENDING');
 
   const [messages, setMessages] = useState([]);
@@ -38,13 +40,13 @@ function MyViewOrders(props) {
         const response = await axios.get(`${baseUrl}/staff/orders`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const newOrderList = response.data.orderlist;
+        const newOrderData = response.data.orderlist;
         console.log("Fetching orders......");
 
         // Check if the order list has changed
-        if (JSON.stringify(newOrderList) !== JSON.stringify(prevOrderList.current)) {
-          setOrderList(newOrderList);
-          prevOrderList.current = newOrderList;
+        if (JSON.stringify(newOrderData) !== JSON.stringify(prevOrderData.current)) {
+          setOrderData(newOrderData);
+          prevOrderData.current = newOrderData;
         }
       }
     } catch (err) {
@@ -69,7 +71,7 @@ function MyViewOrders(props) {
   
 
   useEffect(() => {
-    const socket = new WebSocket('ws://localhost:8080/ws/orders');
+    const socket = new WebSocket(`ws://${wsURL}/ws/orders`);
     socket.onopen = () => {
         console.log('WebSocket connection established');
     };
@@ -110,6 +112,7 @@ function MyViewOrders(props) {
       }
     }));
   };
+ 
 
   const handleUpdateOrder = async (id, email, status) => {
     try {
@@ -121,7 +124,46 @@ function MyViewOrders(props) {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-     
+      // if(status === 'DONE') {
+      //   const response_data = await axios.get(`${baseUrl}/staff/product/${id}`, {
+      //     headers: { Authorization: `Bearer ${token}` }
+      //   });
+      //   setProduct(response_data.data.oblist);
+
+      //   // const response = await axios.put(`${baseUrl}/staff/product/${id}`, {
+      //   //   description: ,
+      //   //   email: email,
+      //   //   orderStatus: status
+      //   // }, {
+      //   //   headers: { Authorization: `Bearer ${token}` }
+      //   // });
+      // }
+
+
+      // console.log("orderData:", orderData);
+
+      //   if (orderData) {
+      //     const order = orderData.find(o => o.orderId === id);
+      //     if (order) {
+      //       console.log(`Order ID: ${order.orderId}`);
+      //       console.log(`Order By: ${order.orderBy}`);
+      //       console.log(`Order Status: ${order.orderStatus}`);
+      //       console.log("Products:", order.products);  // Check if products are available
+      //       order.products.forEach(product => {
+      //           console.log(`- Product Name: ${product.productName}`);
+      //           console.log(`  Product Category: ${product.productCategory}`);
+      //           console.log(`  Product Size: ${product.productSize || 'N/A'}`);
+      //           console.log(`  Quantity: ${product.quantity}`);
+      //           console.log(`  Price: ${product.price}`);
+      //       });
+      //     } else {
+      //       console.log(`Order with ID ${id} not found.`);
+      //     }
+      //   }
+      
+
+      
+      
       console.log("Update successful:", response.data);
   
       setIsUpdated(true);
@@ -190,10 +232,10 @@ function MyViewOrders(props) {
       </div>
        
         <Typography variant="h5" gutterBottom marginLeft={10} marginTop={5} >Order List</Typography>
-        {orderList.length > 0 ? (
+        {orderData.length > 0 ? (
           <Box display="flex" flexWrap="wrap" gap={5} marginLeft={10}>
             
-            {orderList
+            {orderData
               .filter(order => order.orderStatus === fltr)
               .filter(order => search === '' ||order.orderId.toString().includes(search) || order.orderBy.replace(/@[\w.-]+$/, '').toLowerCase().includes(search.toLowerCase()))
               .map(order => (

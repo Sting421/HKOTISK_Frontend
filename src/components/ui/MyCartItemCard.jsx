@@ -123,16 +123,18 @@ function MyCartItemCard(props) {
           <div>
             <FormControl size="small">
               <InputLabel>Size</InputLabel>
-              <Select
-                label="Size"
-                value={productSize} 
-                onChange={handleSizeChange}
-                sx={{ minWidth: 90 }}
-              >
-                <MenuItem value='S'>Small</MenuItem>
-                <MenuItem value='M'>Medium</MenuItem>
-                <MenuItem value='L'>Large</MenuItem>
-              </Select>
+              {productSize != null && (
+                <Select
+                  label="Size"
+                  value={productSize}
+                  onChange={handleSizeChange}
+                  sx={{ minWidth: 90 }}
+                >
+                  <MenuItem value='S'>Small</MenuItem>
+                  <MenuItem value='M'>Medium</MenuItem>
+                  <MenuItem value='L'>Large</MenuItem>
+                </Select>
+              )}
             </FormControl>
           </div>
         </div>

@@ -29,6 +29,7 @@ import ImageUploader from './staff/ImageUploader';
 import StaffProductsView from './staff/StaffProductsView';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
+const wsURL = import.meta.env.VITE_WS_URL;
 
 const demoTheme = createTheme({
   cssVariables: { colorSchemeSelector: 'data-toolpad-color-scheme' },
@@ -150,7 +151,7 @@ function MyDashboard({ window }) {
   const [isConnected, setIsConnected] = useState(false);
 
       useEffect(() => {
-        const socket = new WebSocket('ws://localhost:8080/ws/products');
+        const socket = new WebSocket(`ws://${wsURL}/ws/products`);
       
         // Handle connection open
         socket.onopen = () => {

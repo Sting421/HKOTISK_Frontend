@@ -4,6 +4,20 @@ import axios from 'axios';
 
 const baseUrl = 'http://localhost:8080';
 
+
+export const fetchData = async (url, token, setData) => {
+  try {
+    const response = await axios.get(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (response.status === 200){
+      setData(response.data.oblist);
+    }
+  } catch (error) {
+    console.error(`Error fetching data from ${url}:`, error);
+  }
+};
+
 const apiClient = axios.create({
   baseURL: baseUrl,
   headers: {

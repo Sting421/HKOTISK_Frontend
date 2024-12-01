@@ -9,53 +9,50 @@ import LandingPage from './components/LandingPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [mode, setMode] = useState('dark');
+  // const [mode, setMode] = useState('light');
 
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode,
-          ...(mode === 'dark' ? {
-            background: {
-              default: '#121212',
-              paper: '#1e1e1e',
-            },
-          } : {
-            background: {
-              default: '#ffffff',
-              paper: '#f5f5f5',
-            },
-          }),
-        },
-      }),
-    [mode]
-  );
+  // const theme = useMemo(
+  //   () =>
+  //     createTheme({
+  //       palette: {
+  //         mode,
+  //         ...(mode === 'dark' ? {
+  //           background: {
+  //             default: '#121212',
+  //             paper: '#1e1e1e',
+  //           },
+  //         } : {
+  //           background: {
+  //             default: '#ffffff',
+  //             paper: '#f5f5f5',
+  //           },
+  //         }),
+  //       },
+  //     }),
+  //   [mode]
+  // );
 
   const handleSignIn = () => {
     setIsAuthenticated(true);
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Routes>
-          <Route 
-            path="/" 
-            element={<LandingPage />} 
-          />
-          <Route 
-            path="/auth" 
-            element={<SignInUpForm onSignIn={handleSignIn} />} 
-          />
-          <Route 
-            path="/dashboard" 
-            element={<MyDashboard />} 
-          />
-        </Routes>
-      </Router>
-    </ThemeProvider>
+    <Router>
+    <Routes>
+      <Route 
+        path="/" 
+        element={<LandingPage />} 
+      />
+      <Route 
+        path="/auth" 
+        element={<SignInUpForm onSignIn={handleSignIn} />} 
+      />
+      <Route 
+        path="/dashboard" 
+        element={<MyDashboard /> } 
+      />
+    </Routes>
+  </Router>
   );
 }
 
