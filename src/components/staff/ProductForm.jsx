@@ -315,16 +315,7 @@ function ProductForm({
                     InputProps={{
                       startAdornment: <InputAdornment position="start">₱</InputAdornment>,
                     }}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={4}>
-                  <TextField
-                    type="number"
-                    label="Quantity"
-                    value={productData.quantity?.[index] || ''}
-                    onChange={(e) => handleQuantityChange(index, e.target.value)}
-                    required
+                   
                   />
                 </Grid>
               </Grid>

@@ -163,7 +163,7 @@ function MyItemCard({
     <Card
       sx={{ 
         width: '300px',
-        height: '100%',
+        height: '600px',
         display: 'flex',
         flexDirection: 'column',
         borderRadius: '8px',

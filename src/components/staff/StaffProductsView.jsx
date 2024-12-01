@@ -118,7 +118,7 @@ export default function StaffProductsView() {
       {loading ? (
         <Typography>Loading products...</Typography>
       ) : (
-        <Box sx={{ maxWidth: '1400px', mx: 'auto', width: '100%' }}>
+        <Box sx={{ maxWidth: '1400px', mx: 'auto', width: '100%' }} wrap = "wrap">
           <Grid 
             container 
             spacing={3} 

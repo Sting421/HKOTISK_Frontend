@@ -208,7 +208,7 @@ function MyViewOrders(props) {
 
   return (
     isLoading ? (
-      <Box sx={{ display: 'flex', mt: 50, ml: 100  }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop:50}}>
         <CircularProgress />
       </Box>
     ) : (
