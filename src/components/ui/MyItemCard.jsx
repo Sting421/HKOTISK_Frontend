@@ -98,6 +98,7 @@ function MyItemCard({
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState(myToken);
   const [open, setOpen] = useState(false);
+  const myRole =  JSON.parse(sessionStorage.getItem('role'));
   const [listQuantity, setListQuantity] = useState(
     Array.isArray(itemQuantity) && itemQuantity.length > 0 
       ? parseInt(itemQuantity[0]) 
@@ -295,7 +296,7 @@ function MyItemCard({
             </Box>
           </Box>
         )}
-
+       {myRole !== 'staff' && (
         <Box sx={{ mt: 'auto' }}>
           <CartButton
             variant="contained"
@@ -306,6 +307,7 @@ function MyItemCard({
             ADD TO CART
           </CartButton>
         </Box>
+      )}
       </CardContent>
 
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>

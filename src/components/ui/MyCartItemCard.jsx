@@ -22,7 +22,7 @@ function MyCartItemCard(props) {
   const [token, setToken] = useState(props.myToken);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  
   const [cartData, setCartData] = useState({ 
     id: props.itemId, 
     quantity, 

@@ -64,19 +64,16 @@ function MyDashboard({ window }) {
   const navigate = useNavigate();
 
   const STUDENT_NAVIGATION = useMemo(() => [
-    { segment: 'Favorites', title: 'Favorites', icon: <DashboardIcon /> },
     { segment: 'Snacks', title: 'Snacks', icon: <FastfoodIcon /> },
     { segment: 'Food', title: 'Food', icon: <LocalPizzaIcon /> },
     { segment: 'Beverage', title: 'Beverage', icon: <LocalDrinkIcon /> },
-    { kind: 'divider' },
-    { segment: 'Info', title: 'Info', icon: <InfoIcon /> },
+
+   
   ], []);
 
   const STAFF_NAVIGATION = useMemo(() => [
     { segment: 'ViewOrders', title: 'Orders', icon: <FormatListBulletedIcon /> },
     { segment: 'manage-products', title: 'Products', icon: <ModeEditOutlineIcon /> },
-    { kind: 'divider' },
-    { segment: 'Info', title: 'Info', icon: <InfoIcon /> },
   ], []);
 
   const NAVIGATION = useMemo(() => [
@@ -321,7 +318,7 @@ function MyDashboard({ window }) {
   function MyCartFunc() {
     return (
       <>
-        <MyCart sx={{ display: 'flex', justifyContent: 'center' }} />
+         {myRole !== 'staff' && <MyCart sx={{ display: 'flex', justifyContent: 'center' }} />}
         <div><MyLogOut /></div>
       </>
     );

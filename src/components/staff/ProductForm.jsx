@@ -194,6 +194,7 @@ function ProductForm({
           'Content-Type': 'application/json'
         }
       });
+      console.log(response)
 
       setOpen(true);
       if (onSuccess) {
@@ -271,7 +272,7 @@ function ProductForm({
             id="category"
             name="category"
             sx={{ width: '100%', marginBottom: '1.5rem' }}
-            value={categoryOptions.find(option => option.label === productData.category) || null}
+            value={categoryOptions.find(option => option.label === productData.category)}
             onChange={handleProductChange}
             renderInput={(params) => <TextField {...params} label="Category" required />}
           />
