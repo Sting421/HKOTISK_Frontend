@@ -218,14 +218,14 @@ function MyViewOrders(props) {
           InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon /> </InputAdornment> ),}}
           sx={{
             width: "90%", marginLeft: "20px",marginBottom: "20px",borderRadius: "8px",
-            "& .MuiFormLabel-root": { fontWeight: "bold", color: "black",  },
-            "& .MuiFormLabel-root.Mui-focused": { color: "#F2C300",  },
+            "& .MuiFormLabel-root": { fontWeight: "bold", color: "inherit",  },
+            "& .MuiFormLabel-root.Mui-focused": { color: "#A51C30",  },
             "& .MuiOutlinedInput-root": {
-            "& fieldset": { borderColor: "black",},
-            "&:hover fieldset": { borderColor: "#F2C300", },
-            "&.Mui-focused fieldset": { borderColor: "#F2C300", },
-            "&:hover .MuiInputBase-input": {color: "#F2C300",  },},
-            "&:hover .MuiSvgIcon-root": {color: "#F2C300",},
+            "& fieldset": { borderColor: "inherit",},
+            "&:hover fieldset": { borderColor: "#A51C30", },
+            "&.Mui-focused fieldset": { borderColor: "#A51C30", },
+            "&:hover .MuiInputBase-input": {color: "#A51C30",  },},
+            "&:hover .MuiSvgIcon-root": {color: "#A51C30",},
           }}
         />
       <div>

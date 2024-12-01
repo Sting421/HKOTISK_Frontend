@@ -219,15 +219,19 @@ function MyItemCard({
           alignItems: 'center',
           mb: 2
         }}>
-          <Typography variant="body2" color="text.secondary">Quantity:</Typography>
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 1,
-            border: '1px solid #e0e0e0',
-            borderRadius: '4px',
-            padding: '4px'
-          }}>
+           {myRole !== 'staff' && (
+            <Typography variant="body2" color="text.secondary">Quantity:</Typography>
+           )}
+            {myRole !== 'staff' && (
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 1,
+              border: '1px solid #e0e0e0',
+              borderRadius: '4px',
+              padding: '4px'
+            }}>
+              
             <IconButton 
               size="small" 
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -238,6 +242,7 @@ function MyItemCard({
             >
               <RemoveIcon fontSize="small" />
             </IconButton>
+           
             <TextField
               value={quantity}
               onChange={(e) => {
@@ -261,6 +266,7 @@ function MyItemCard({
                 }
               }}
             />
+           
             <IconButton 
               size="small" 
               onClick={() => setQuantity(quantity + 1)}
@@ -271,9 +277,11 @@ function MyItemCard({
             >
               <AddIcon fontSize="small" />
             </IconButton>
+          
           </Box>
+             )}
         </Box>
-
+      
         {itemSize.length > 0 && (
           <Box sx={{ mb: 2 }}>
             <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
