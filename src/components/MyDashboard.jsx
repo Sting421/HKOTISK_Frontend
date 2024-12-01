@@ -221,98 +221,83 @@ function MyDashboard({ window }) {
       }, [products, search]);
       
   const DemoPageContent = useCallback(() => (
-
+    <>
     <Box sx={{ py: 4, display: 'flex', flexWrap: 'wrap', gap: '30px', justifyContent: 'center', alignItems: 'center' }}>
-      {pathname === '/dashboard' && <Typography>Welcome to the Dashboard</Typography>}
-      {pathname === '/ViewProducts' && 
-      products.map(product => (
+        {pathname === '/dashboard' && <Typography>Welcome to the Dashboard</Typography>}
+        {pathname === '/ViewProducts' && 
+        products.map(product => (
+          
+          <MyItemCard
+            key={product.productId}
+            productId={parseInt(product.productId, 10)}
+            price={product.prices}
+            itemName={product.productName}
+            itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
+            itemDescription={product.description}
+            itemSize={product.sizes}
+            itemQuantity={product.quantity}
+            myToken={token}
+          />
         
-        <MyItemCard
-          key={product.productId}
-          productId={parseInt(product.productId, 10)}
-          price={product.prices}
-          itemName={product.productName}
-          itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
-          itemDescription={product.description}
-          itemSize={product.sizes}
-          itemQuantity={product.quantity}
-          myToken={token}
-        />
-       
-      ))}
-      {pathname === '/Snacks' && 
-      products.map(product => (
+        ))}
+        {pathname === '/Snacks' && 
+        products.map(product => (
+          
+          <MyItemCard
+            key={product.productId}
+            productId={parseInt(product.productId, 10)}
+            price={product.prices}
+            itemName={product.productName}
+            itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
+            itemDescription={product.description}
+            itemSize={product.sizes}
+            itemQuantity={product.quantity}
+            myToken={token}
+          />
         
-        <MyItemCard
-          key={product.productId}
-          productId={parseInt(product.productId, 10)}
-          price={product.prices}
-          itemName={product.productName}
-          itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
-          itemDescription={product.description}
-          itemSize={product.sizes}
-          itemQuantity={product.quantity}
-          myToken={token}
-        />
+        ))}
+      {pathname === '/Food' && filteredProducts
+        .filter(product => product.category === 'Food')
+        .sort((a, b) => a.productName.localeCompare(b.productName))
+        .map(product => (
+          <MyItemCard
+            key={product.productId}
+            productId={parseInt(product.productId, 10)}
+            price={product.prices}
+            itemName={product.productName}
+            itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
+            itemDescription={product.description}
+            itemSize={product.sizes}
+            itemQuantity={product.quantity}
+            myToken={token}
+          />
+        ))}
+        {pathname === '/Beverage'  && 
+          products
+            .filter(order => order.category === 'Beverage')
+            .map(product => (
+              <MyItemCard
+                key={product.productId}
+                productId={parseInt(product.productId, 10)}
+                price={product.prices}
+                itemName={product.productName}
+                itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
+                itemDescription={product.description}
+                itemSize={product.sizes}
+                itemQuantity={product.quantity}
+                myToken={token}
+              />
+            ))}
+
        
-      ))}
-     {pathname === '/Food' && filteredProducts
-      .filter(product => product.category === 'Food')
-      .sort((a, b) => a.productName.localeCompare(b.productName))
-      .map(product => (
-        <MyItemCard
-          key={product.productId}
-          productId={parseInt(product.productId, 10)}
-          price={product.prices}
-          itemName={product.productName}
-          itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
-          itemDescription={product.description}
-          itemSize={product.sizes}
-          itemQuantity={product.quantity}
-          myToken={token}
-        />
-      ))}
-      {pathname === '/Beverage'  && 
-        products
-          .filter(order => order.category === 'Beverage')
-          .map(product => (
-            <MyItemCard
-              key={product.productId}
-              productId={parseInt(product.productId, 10)}
-              price={product.prices}
-              itemName={product.productName}
-              itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
-              itemDescription={product.description}
-              itemSize={product.sizes}
-              itemQuantity={product.quantity}
-              myToken={token}
-            />
-          ))}
-
-      { pathname === '/UpdateProducts' &&
-       products
-       .sort((a, b) => a.productName.localeCompare(b.productName))
-       .map(product => (
-        <MyUpdateProduct
-          key={product.productId}
-          productId={parseInt(product.productId, 10)}
-          price={product.prices}
-          itemName={product.productName}
-          itemImage={product.productImage || '/src/assets/componentsRes/hkotiskLogo.png'}
-          itemDescription={product.description}
-          itemSize={product.sizes}
-          itemQuantity={product.quantity}
-          myToken={token}
-          setIsDeleted={setIsDeleted}
-        />
-      ))}
-      { pathname === '/AddProducts' && <AddProducts token={token} />}
-      { pathname === '/ViewOrders' && <MyViewOrders token={token}/>}
-
-      { pathname === '/WaitingArea' && <MyViewOrders token={token}/>}
-      { pathname === '/ImageUpload' && <ImageUploader/>}
-      { pathname === '/manage-products' && <StaffProductsView token={token} />}
-    </Box>
+      </Box>
+      <Box>
+        { pathname === '/ViewOrders' && <MyViewOrders token={token}/>}
+        </Box>
+        <Box sx={{ py: 4, display: 'flex', flexWrap: 'wrap', gap: '30px', justifyContent: 'center', alignItems: 'center' }}>
+        { pathname === '/manage-products' && <StaffProductsView token={token} />}
+      </Box>
+      </>
   ), [pathname, products, search,token]);
   
   function MyCartFunc() {

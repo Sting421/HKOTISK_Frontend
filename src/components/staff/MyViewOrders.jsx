@@ -213,39 +213,41 @@ function MyViewOrders(props) {
       </Box>
     ) : (
       
-      <div>
-        <TextField label="Search" name="search" variant="outlined" color="inherit"  onChange={handleOnChangeSearch}
-          InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon /> </InputAdornment> ),}}
-          sx={{
-            width: "90%", marginLeft: "20px",marginBottom: "20px",borderRadius: "8px",
-            "& .MuiFormLabel-root": { fontWeight: "bold", color: "inherit",  },
-            "& .MuiFormLabel-root.Mui-focused": { color: "#A51C30",  },
-            "& .MuiOutlinedInput-root": {
-            "& fieldset": { borderColor: "inherit",},
-            "&:hover fieldset": { borderColor: "#A51C30", },
-            "&.Mui-focused fieldset": { borderColor: "#A51C30", },
-            "&:hover .MuiInputBase-input": {color: "#A51C30",  },},
-            "&:hover .MuiSvgIcon-root": {color: "#A51C30",},
-          }}
-        />
-      <div>
-        <Button
-          onClick={() => handleFilter('DONE')}
-          sx={{ marginLeft: "20px", color: "inherit", "&:hover": {backgroundColor: "#F0F0F0",  color: "green", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",},}}
-        >
-          Done
-        </Button>
-        <Button onClick={() => handleFilter('PENDING')} sx={{ marginLeft: "20px",color: "inherit","&:hover": {backgroundColor: "#F0F0F0", color: "orange",boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",},}}>
-          Pending
-        </Button>
-        <Button
-          onClick={() => handleFilter('CANCELED')}
-          sx={{ marginLeft: "20px", color: "inherit",
-            "&:hover": {backgroundColor: "#F0F0F0", color: "red",boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", }, }}
-        >
-          CANCELED
-        </Button>
-      </div>
+      <div style={{ display: 'flex', flexDirection:'column'}}>
+        <div >
+          <TextField label="Search" name="search" variant="outlined" color="inherit"  onChange={handleOnChangeSearch}
+            InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon /> </InputAdornment> ),}}
+            sx={{
+              width: "90%", marginLeft: "20px",marginBottom: "20px",borderRadius: "8px",
+              "& .MuiFormLabel-root": { fontWeight: "bold", color: "inherit",  },
+              "& .MuiFormLabel-root.Mui-focused": { color: "#A51C30",  },
+              "& .MuiOutlinedInput-root": {
+              "& fieldset": { borderColor: "inherit",},
+              "&:hover fieldset": { borderColor: "#A51C30", },
+              "&.Mui-focused fieldset": { borderColor: "#A51C30", },
+              "&:hover .MuiInputBase-input": {color: "#A51C30",  },},
+              "&:hover .MuiSvgIcon-root": {color: "#A51C30",},
+            }}
+          />
+        </div>
+        <div>
+            <Button
+              onClick={() => handleFilter('DONE')}
+              sx={{ marginLeft: "20px", color: "inherit", "&:hover": {backgroundColor: "#F0F0F0",  color: "green", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",},}}
+            >
+              Done
+            </Button>
+            <Button onClick={() => handleFilter('PENDING')} sx={{ marginLeft: "20px",color: "inherit","&:hover": {backgroundColor: "#F0F0F0", color: "orange",boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",},}}>
+              Pending
+            </Button>
+            <Button
+              onClick={() => handleFilter('CANCELED')}
+              sx={{ marginLeft: "20px", color: "inherit",
+                "&:hover": {backgroundColor: "#F0F0F0", color: "red",boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", }, }}
+            >
+              CANCELED
+            </Button>
+        </div>
        
         <Typography variant="h5" gutterBottom marginLeft={10} marginTop={5} >Order List</Typography>
         {orderData.length > 0 ? (
