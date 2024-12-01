@@ -124,48 +124,64 @@ function MyViewOrders(props) {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      // if(status === 'DONE') {
-      //   const response_data = await axios.get(`${baseUrl}/staff/product/${id}`, {
-      //     headers: { Authorization: `Bearer ${token}` }
-      //   });
-      //   setProduct(response_data.data.oblist);
 
-      //   // const response = await axios.put(`${baseUrl}/staff/product/${id}`, {
-      //   //   description: ,
-      //   //   email: email,
-      //   //   orderStatus: status
-      //   // }, {
-      //   //   headers: { Authorization: `Bearer ${token}` }
-      //   // });
-      // }
-
-
-      // console.log("orderData:", orderData);
-
-      //   if (orderData) {
-      //     const order = orderData.find(o => o.orderId === id);
-      //     if (order) {
-      //       console.log(`Order ID: ${order.orderId}`);
-      //       console.log(`Order By: ${order.orderBy}`);
-      //       console.log(`Order Status: ${order.orderStatus}`);
-      //       console.log("Products:", order.products);  // Check if products are available
-      //       order.products.forEach(product => {
-      //           console.log(`- Product Name: ${product.productName}`);
-      //           console.log(`  Product Category: ${product.productCategory}`);
-      //           console.log(`  Product Size: ${product.productSize || 'N/A'}`);
-      //           console.log(`  Quantity: ${product.quantity}`);
-      //           console.log(`  Price: ${product.price}`);
-      //       });
-      //     } else {
-      //       console.log(`Order with ID ${id} not found.`);
-      //     }
-      //   }
-      
-
-      
+      // If order is marked as DONE, update product quantities
+      if (status === 'DONE') {
+        console.log("Updating product quantities");
+        const order = orderData.find(o => o.orderId === id);
+        if (order) {
+          // Process each product in the order
+          for (const orderProduct of order.products) {
+            try {
+              // First get the current product data
+              const productResponse = await axios.get(`${baseUrl}/user/products/${orderProduct.productId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+              
+              const currentProduct = productResponse.data;
+              console.log("Current product data:", currentProduct);
+              
+              // Find the index of the size in the product's sizes array
+              const sizeIndex = currentProduct.sizes.findIndex(
+                size => size === orderProduct.productSize
+              );
+              
+              if (sizeIndex !== -1) {
+                // Create a copy of the quantities array
+                const newQuantities = [...currentProduct.quantity];
+                // Subtract the ordered quantity from the current quantity
+                newQuantities[sizeIndex] = Math.max(0, newQuantities[sizeIndex] - orderProduct.quantity);
+                
+                console.log("Updating quantity for size", orderProduct.productSize, "from", currentProduct.quantity[sizeIndex], "to", newQuantities[sizeIndex]);
+                
+                // Prepare the update payload with all required fields
+                const updateData = {
+                  productId: currentProduct.productId,
+                  description: currentProduct.description,
+                  productName: currentProduct.productName,
+                  prices: currentProduct.prices,
+                  quantity: newQuantities,
+                  sizes: currentProduct.sizes,
+                  category: currentProduct.category,
+                  productImage: currentProduct.productImage
+                };
+                
+                // Update the product
+                await axios.put(
+                  `${baseUrl}/staff/product/${orderProduct.productId}`,
+                  updateData,
+                  { headers: { Authorization: `Bearer ${token}` } }
+                );
+              }
+            } catch (error) {
+              console.error(`Error updating product ${orderProduct.productId}:`, error);
+              console.error("Error details:", error.response?.data);
+            }
+          }
+        }
+      }
       
       console.log("Update successful:", response.data);
-  
       setIsUpdated(true);
     } catch (err) {
       console.error(err);

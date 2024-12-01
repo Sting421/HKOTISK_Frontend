@@ -153,36 +153,66 @@ function MyDashboard({ window }) {
       useEffect(() => {
         const socket = new WebSocket(`ws://${wsURL}/ws/products`);
       
-        // Handle connection open
         socket.onopen = () => {
           console.log('WebSocket connection established');
-          setIsConnected(true); // Update connection state
+          setIsConnected(true);
         };
       
-        
         socket.onmessage = (event) => {
-          console.log('Message received:', event.data);
-          setNewProduct(true);
+          try {
+            // Handle text messages
+            if (typeof event.data === 'string') {
+              // Ignore connection messages
+              if (event.data.startsWith('Connection')) {
+                return;
+              }
+              
+              // Handle product update messages
+              if (event.data.includes('Product with ID')) {
+                fetchData(`${baseUrl}/user/product`, token, setProducts);
+                setNewProduct(true);
+                return;
+              }
+            }
+            
+            // Try to parse as JSON for other messages
+            const data = JSON.parse(event.data);
+            if (data.type === 'update' || data.type === 'create') {
+              fetchData(`${baseUrl}/user/product`, token, setProducts);
+            } else if (data.type === 'delete') {
+              setProducts(prevProducts => 
+                prevProducts.filter(product => product.id !== data.productId)
+              );
+            }
+            setNewProduct(true);
+          } catch (error) {
+            // Only log errors for non-connection messages
+            if (!event.data.startsWith('Connection')) {
+              console.error('Error processing WebSocket message:', error);
+              console.debug('Raw message:', event.data);
+            }
+          }
         };
       
-        
         socket.onclose = () => {
           console.log('WebSocket connection closed');
-          setIsConnected(false); 
+          setIsConnected(false);
+          // Attempt to reconnect after 5 seconds
+          setTimeout(() => {
+            setIsConnected(false);
+          }, 5000);
         };
-      
       
         socket.onerror = (error) => {
           console.error('WebSocket error:', error);
         };
-      
       
         return () => {
           if (socket.readyState === WebSocket.OPEN) {
             socket.close();
           }
         };
-      }, []);
+      }, [token]);
       const handleOnChangeSearch = (e) => {
         setSearch(e.target.value);
         console.log(search)

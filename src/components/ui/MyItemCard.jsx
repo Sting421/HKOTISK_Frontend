@@ -1,8 +1,22 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardMedia, Typography, Button, Box, Chip, Snackbar, Alert } from '@mui/material';
+import { 
+  Card, 
+  CardContent, 
+  CardMedia, 
+  Typography, 
+  Button, 
+  Box, 
+  Chip, 
+  Snackbar, 
+  Alert,
+  IconButton,
+  TextField
+} from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import InfoIcon from '@mui/icons-material/Info';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
@@ -193,12 +207,70 @@ function MyItemCard({
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
-          mb: 2
+          mb: 1
         }}>
           <PriceChip label={`₱${priceValue.toFixed(2)}`} />
-          <Typography variant="body2" color="text.secondary">
-            Qty: {listQuantity}
-          </Typography>
+        </Box>
+
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 2
+        }}>
+          <Typography variant="body2" color="text.secondary">Quantity:</Typography>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 1,
+            border: '1px solid #e0e0e0',
+            borderRadius: '4px',
+            padding: '4px'
+          }}>
+            <IconButton 
+              size="small" 
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              sx={{ 
+                color: '#800000',
+                '&:hover': { backgroundColor: 'rgba(128, 0, 0, 0.04)' }
+              }}
+            >
+              <RemoveIcon fontSize="small" />
+            </IconButton>
+            <TextField
+              value={quantity}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || 1;
+                setQuantity(Math.max(1, val));
+              }}
+              inputProps={{
+                min: 1,
+                style: { 
+                  textAlign: 'center',
+                  width: '40px',
+                  padding: '4px',
+                  '-moz-appearance': 'textfield'
+                }
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { border: 'none' },
+                  '&:hover fieldset': { border: 'none' },
+                  '&.Mui-focused fieldset': { border: 'none' }
+                }
+              }}
+            />
+            <IconButton 
+              size="small" 
+              onClick={() => setQuantity(quantity + 1)}
+              sx={{ 
+                color: '#800000',
+                '&:hover': { backgroundColor: 'rgba(128, 0, 0, 0.04)' }
+              }}
+            >
+              <AddIcon fontSize="small" />
+            </IconButton>
+          </Box>
         </Box>
 
         {itemSize.length > 0 && (

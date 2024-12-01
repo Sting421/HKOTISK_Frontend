@@ -5,8 +5,6 @@ import {
   Typography,
   Button,
   IconButton,
-  Select,
-  MenuItem,
   FormControl,
   InputLabel
 } from '@mui/material';
@@ -20,61 +18,60 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 function MyCartItemCard(props) {
   const [quantity, setQuantity] = useState(props.itemQuantity);
   const [productSize, setProductSize] = useState(props.itemSize);
+  const [price, setPrice] = useState(props.itemPrice);
   const [token, setToken] = useState(props.myToken);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const [cartData, setCartData] = useState({ id: props.itemId, quantity, size: productSize });
+  const [cartData, setCartData] = useState({ 
+    id: props.itemId, 
+    quantity, 
+    size: productSize,
+    price: price 
+  });
   
-  useEffect(() => {
-    const updateCartData = async () => {
-      if (!isLoading) return; 
-      try {
-        const response = await axios.put(
-          `${baseUrl}/user/cart`,
-          cartData,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        console.log("Update successful:", response.data);
-        if (response.data.token) {
-          setToken(response.data.token);
-          sessionStorage.setItem('token', JSON.stringify(response.data.token));
-        }
-      } catch (error) {
-        console.error('Error updating cart:', error);
-      } finally {
-        setIsLoading(false);
+  const updateCartData = async (newQuantity) => {
+    try {
+      setIsLoading(true);
+      const updatedCartData = { 
+        ...cartData, 
+        quantity: newQuantity 
+      };
+      
+      const response = await axios.put(
+        `${baseUrl}/user/cart`,
+        updatedCartData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      console.log("Update successful:", response.data);
+      if (response.data.token) {
+        setToken(response.data.token);
+        sessionStorage.setItem('token', JSON.stringify(response.data.token));
       }
-    };
-
-    updateCartData();
-  }, [quantity, productSize]); 
+      
+      setQuantity(newQuantity);
+      setCartData(updatedCartData);
+      props.setIsUpdated(true);
+    } catch (error) {
+      console.error('Error updating cart:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const incrementQuantity = () => {
-    setQuantity((prev) => {
-      const newQuantity = prev + 1;
-      setCartData((prevData) => ({ ...prevData, quantity: newQuantity }));
-      return newQuantity;
-    });
-    setIsLoading(true);
+    if (!isLoading) {
+      const newQuantity = quantity + 1;
+      updateCartData(newQuantity);
+    }
   };
 
   const decrementQuantity = () => {
-    setQuantity((prev) => {
-      const newQuantity = Math.max(1, prev - 1);
-      setCartData((prevData) => ({ ...prevData, quantity: newQuantity }));
-      return newQuantity;
-    });
-    setIsLoading(true);
-  };
-
-  
-
-  const handleSizeChange = (event) => {
-    const newSize = event.target.value;
-    setProductSize(newSize);
-    setCartData((prevData) => ({ ...prevData, size: newSize }));
-    setIsLoading(true);
+    if (!isLoading && quantity > 1) {
+      const newQuantity = quantity - 1;
+      updateCartData(newQuantity);
+    }
   };
 
   const handleRemoveItem = async (e) => {
@@ -100,11 +97,11 @@ function MyCartItemCard(props) {
       
       
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">{props.itemName}</Typography>
-          <Typography variant="h6">₱ {(props.itemPrice * quantity).toFixed(2)}</Typography>
+          <Typography variant="h6" sx={{ flex: 1, mr: 2 }}>{props.itemName}</Typography>
+          <Typography variant="h6">₱ {(price * quantity).toFixed(2)}</Typography>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
           <div>
             <Typography variant="body2" color="text.secondary">Quantity:</Typography>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 4 }}>
@@ -120,23 +117,14 @@ function MyCartItemCard(props) {
             </div>
           </div>
 
-          <div>
-            <FormControl size="small">
-              <InputLabel>Size</InputLabel>
-              {productSize != null && (
-                <Select
-                  label="Size"
-                  value={productSize}
-                  onChange={handleSizeChange}
-                  sx={{ minWidth: 90 }}
-                >
-                  <MenuItem value='S'>Small</MenuItem>
-                  <MenuItem value='M'>Medium</MenuItem>
-                  <MenuItem value='L'>Large</MenuItem>
-                </Select>
-              )}
-            </FormControl>
-          </div>
+          {productSize && productSize !== "NULL" && (
+            <div style={{ display: 'flex', alignItems: 'center', minWidth: 'fit-content' }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>Size:</Typography>
+              <Typography variant="body1">
+                {productSize}
+              </Typography>
+            </div>
+          )}
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
@@ -162,6 +150,8 @@ MyCartItemCard.propTypes = {
   itemQuantity: PropTypes.number,
   itemSize: PropTypes.string,
   setIsDeleted: PropTypes.func,
+  setIsUpdated: PropTypes.func,
   itemPrice: PropTypes.number.isRequired,
+  productId: PropTypes.number.isRequired,
   myToken: PropTypes.string.isRequired
 };

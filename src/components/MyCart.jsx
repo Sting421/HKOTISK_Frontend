@@ -37,7 +37,8 @@ export default function MyCart() {
       fetchData(`${baseUrl}/user/product`, setProductData);
     }
     setIsDeleted(false);
-  }, [ drawerOpen, isDeleted]);
+    setIsUpdated(false);
+  }, [token, drawerOpen, isDeleted, isUpdated]);
 
   const fetchData = async (url, data) => {
     try {
@@ -86,14 +87,10 @@ export default function MyCart() {
     return myCart.reduce((total, cart) => total + cart.price * cart.quantity, 0);
   };
   
-  if(isUpdated){
-    setTotalPrice(calculateTotalPrice());
-  }
-
   useEffect(() => {
     setTotalPrice(calculateTotalPrice());
   }, [myCart]);
-  
+
   const CartList = () => (
     <Box sx={{ width: { xs: '100%', sm: 400 }, height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: 1, borderColor: 'divider' }}>
@@ -107,6 +104,7 @@ export default function MyCart() {
           <MyCartItemCard
             key={cart.cartId}
             itemId={cart.cartId}
+            productId={cart.productId}
             itemName={cart.productName}
             itemQuantity={cart.quantity}
             itemPrice={cart.price}
