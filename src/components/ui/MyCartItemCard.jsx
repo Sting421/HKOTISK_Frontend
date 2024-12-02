@@ -17,7 +17,7 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 function MyCartItemCard(props) {
   const [quantity, setQuantity] = useState(props.itemQuantity);
-  const [productSize, setProductSize] = useState(props.itemSize);
+  const [productSize] = useState(props.itemSize); 
   const [price, setPrice] = useState(props.itemPrice);
   const [token, setToken] = useState(props.myToken);
   const [errorMessage, setErrorMessage] = useState('');
@@ -35,7 +35,8 @@ function MyCartItemCard(props) {
       setIsLoading(true);
       const updatedCartData = { 
         ...cartData, 
-        quantity: newQuantity 
+        quantity: newQuantity,
+        size: productSize 
       };
       
       const response = await axios.put(
@@ -92,50 +93,72 @@ function MyCartItemCard(props) {
   };
 
   return (
-    <Card sx={{ width: '100%', maxWidth: 390 }}>
-      <CardContent sx={{ p: 3 }}>
-      
-      
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6" sx={{ flex: 1, mr: 2 }}>{props.itemName}</Typography>
-          <Typography variant="h6">₱ {(price * quantity).toFixed(2)}</Typography>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
-          <div>
-            <Typography variant="body2" color="text.secondary">Quantity:</Typography>
-            <div style={{ display: 'flex', alignItems: 'center', marginTop: 4 }}>
-              <IconButton onClick={decrementQuantity} aria-label="Decrease quantity" size="small">
+    <Card sx={{ width: '100%', maxWidth: 390, mb: 2 }}>
+      <CardContent sx={{ p: 2 }}>
+        <div style={{ display: 'flex', gap: '16px' }}>
+          {/* Product Image */}
+          <div style={{ width: 100, height: 100, flexShrink: 0 }}>
+            <img
+              src={props.itemImage}
+              alt={props.itemName}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: '8px'
+              }}
+            />
+          </div>
+          
+          {/* Product Details */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600 }}>{props.itemName}</Typography>
+              <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600 }}>₱{(price * quantity).toFixed(2)}</Typography>
+            </div>
+            
+            {productSize && 
+             productSize !== 'null' && 
+             productSize !== 'undefined' && 
+             productSize !== 'NULL' && (
+              <Typography variant="body2" color="text.secondary">Size: {productSize}</Typography>
+            )}
+            
+            {/* Quantity Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 1, marginTop: 'auto' }}>
+              <IconButton 
+                size="small" 
+                onClick={decrementQuantity} 
+                disabled={quantity <= 1 || isLoading}
+                sx={{ bgcolor: 'action.hover' }}
+              >
                 <RemoveIcon fontSize="small" />
               </IconButton>
-              <Typography variant="body2" sx={{ width: 40, textAlign: 'center' }}>
+              
+              <Typography sx={{ mx: 1, minWidth: '20px', textAlign: 'center' }}>
                 {quantity}
               </Typography>
-              <IconButton onClick={incrementQuantity} aria-label="Increase quantity" size="small">
+              
+              <IconButton 
+                size="small" 
+                onClick={incrementQuantity} 
+                disabled={isLoading}
+                sx={{ bgcolor: 'action.hover' }}
+              >
                 <AddIcon fontSize="small" />
               </IconButton>
+              
+              <Button 
+                variant="outlined" 
+                color="error" 
+                size="small" 
+                onClick={handleRemoveItem}
+                sx={{ ml: 'auto' }}
+              >
+                Remove
+              </Button>
             </div>
           </div>
-
-          {productSize && productSize !== "NULL" && (
-            <div style={{ display: 'flex', alignItems: 'center', minWidth: 'fit-content' }}>
-              <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>Size:</Typography>
-              <Typography variant="body1">
-                {productSize}
-              </Typography>
-            </div>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-          <Button
-            variant="text"
-            color="error"
-            sx={{ fontSize: '0.875rem', textTransform: 'none' }}
-            onClick={handleRemoveItem}
-          >
-            Remove
-          </Button>
         </div>
       </CardContent>
     </Card>
@@ -153,5 +176,6 @@ MyCartItemCard.propTypes = {
   setIsUpdated: PropTypes.func,
   itemPrice: PropTypes.number.isRequired,
   productId: PropTypes.number.isRequired,
-  myToken: PropTypes.string.isRequired
+  myToken: PropTypes.string.isRequired,
+  itemImage: PropTypes.string.isRequired
 };

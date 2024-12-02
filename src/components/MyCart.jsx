@@ -91,56 +91,114 @@ export default function MyCart() {
     setTotalPrice(calculateTotalPrice());
   }, [myCart]);
 
+  // Function to get product image from productData
+  const getProductImage = (productId) => {
+    const product = productData.find(p => p.productId === productId);
+    return product ? product.productImage : '';
+  };
+
   const CartList = () => (
-    <Box sx={{ width: { xs: '100%', sm: 400 }, height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: 1, borderColor: 'divider' }}>
-        <Typography variant="h6">Your Cart</Typography>
+    <Box sx={{ 
+      width: { xs: '100%', sm: 400 }, 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      bgcolor: 'background.default'
+    }}>
+      <Box sx={{ 
+        p: 2, 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        borderBottom: 1, 
+        borderColor: 'divider',
+        bgcolor: 'background.paper',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1
+      }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>Shopping Cart</Typography>
         <IconButton onClick={toggleDrawer(false)}>
           <CloseIcon />
         </IconButton>
       </Box>
+
       <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 2 }}>
-        {myCart.map((cart) => (
-          <MyCartItemCard
-            key={cart.cartId}
-            itemId={cart.cartId}
-            productId={cart.productId}
-            itemName={cart.productName}
-            itemQuantity={cart.quantity}
-            itemPrice={cart.price}
-            itemSize={cart.productSize}
-            myToken={token}
-            setIsUpdated={setIsUpdated}
-            setIsDeleted={setIsDeleted}
-          />
-        ))}
+        {myCart.length === 0 ? (
+          <Box sx={{ 
+            height: '100%', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            color: 'text.secondary',
+            p: 3
+          }}>
+            <ShoppingCartIcon sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
+            <Typography variant="h6">Your cart is empty</Typography>
+            <Typography variant="body2">Add items to get started</Typography>
+          </Box>
+        ) : (
+          myCart.map((cart) => (
+            <MyCartItemCard
+              key={cart.cartId}
+              itemId={cart.cartId}
+              productId={cart.productId}
+              itemName={cart.productName}
+              itemQuantity={cart.quantity}
+              itemPrice={cart.price}
+              itemSize={cart.productSize}
+              itemImage={getProductImage(cart.productId)}
+              myToken={token}
+              setIsUpdated={setIsUpdated}
+              setIsDeleted={setIsDeleted}
+            />
+          ))
+        )}
       </Box>
+
       <Divider />
-      <Box sx={{ p: 2 }}>
-        <Card elevation={0} sx={{ bgcolor: 'background.default' }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" component="span" fontWeight="medium">
-                Total
-              </Typography>
-              <Typography variant="h6" component="span" fontWeight="medium">
-                ₱ {totalPrice.toFixed(2)}
-              </Typography>
+      
+      <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
+        <Card elevation={0} sx={{ bgcolor: 'background.default', p: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="subtitle1" color="text.secondary">Subtotal</Typography>
+              <Typography variant="h6">₱{totalPrice.toFixed(2)}</Typography>
             </Box>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              size="large" 
-              fullWidth 
-              sx={{ bgcolor: '#883c40', '&:hover': { bgcolor: '#c7565b' } }}
+            
+            <Button
+              variant="contained"
+              fullWidth
+              size="large"
               onClick={handleOrderRequest}
               disabled={myCart.length === 0}
+              sx={{ 
+                textTransform: 'none',
+                fontWeight: 600,
+                py: 1.5,
+                backgroundColor: '#800000',
+                '&:hover': {
+                  backgroundColor: '#600000'
+                }
+              }}
             >
-              Checkout
+              Proceed to Checkout
             </Button>
-          </CardContent>
+          </Box>
         </Card>
       </Box>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="warning" sx={{ width: '100%' }}>
+          Your cart is empty. Please add items before checking out.
+        </Alert>
+      </Snackbar>
     </Box>
   );
 
@@ -168,11 +226,6 @@ export default function MyCart() {
       >
         <CartList />
       </Drawer>
-      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="error" variant="filled" sx={{ width: '100%' }}>
-          Cart is empty
-        </Alert>
-      </Snackbar>
     </div>
   );
 }
