@@ -132,12 +132,12 @@ function MyItemCard({
       return;
     }
 
-    // if (!size) {
-    //   setError('Please select a size.');
-    //   setIsLoading(false);
-    //   setIsAnimating(false);
-    //   return;
-    // }
+    if (itemSize.length > 0 && !size) {
+      setError('Please select a size.');
+      setIsLoading(false);
+      setIsAnimating(false);
+      return;
+    }
 
     try {
       const response = await axios.post(`${baseUrl}/user/cart`, {

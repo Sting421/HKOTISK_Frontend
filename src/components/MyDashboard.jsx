@@ -46,7 +46,7 @@ const fetchData = async (url, token, setData) => {
       setData(response.data.oblist);
     }
   } catch (error) {
-    console.error(`Error fetching data from ${url}:`, error);
+      console.error(`Error fetching data from ${url}:`, error);
   }
 };
 
@@ -124,7 +124,7 @@ function MyDashboard({ window }) {
         } catch (error) {
           if (error.response?.status === 403) {
             // Token expired or invalid, redirect to login
-            sessionStorage.removeItem('token');
+           
             navigate('/auth');
           }
         }
@@ -156,6 +156,13 @@ function MyDashboard({ window }) {
         };
       
         socket.onmessage = (event) => {
+          console.log('Message received: ', event.data);
+          if (event.data.includes('New Item added') || event.data.includes('Product with')) {
+            // if(myRole !== 'staff')
+            fetchData(`${baseUrl}/user/product`, token, setProducts);
+            setNewProduct(true);
+            return;
+          }
           try {
             // Handle text messages
             if (typeof event.data === 'string') {
@@ -164,8 +171,17 @@ function MyDashboard({ window }) {
                 return;
               }
               
+              // Check if the message is valid JSON
+              let data;
+              try {
+                data = JSON.parse(event.data);
+              } catch (jsonError) {
+                console.warn('Received non-JSON message:', event.data);
+                return; // Exit if the message is not valid JSON
+              }
+
               // Handle product update messages
-              if (event.data.includes('Product with ID')) {
+              if (event.data.includes('New Item added')) {
                 fetchData(`${baseUrl}/user/product`, token, setProducts);
                 setNewProduct(true);
                 return;
@@ -174,8 +190,9 @@ function MyDashboard({ window }) {
             
             // Try to parse as JSON for other messages
             const data = JSON.parse(event.data);
-            if (data.type === 'update' || data.type === 'create') {
+            if (newProduct || data.type === 'update' || data.type === 'create') {
               fetchData(`${baseUrl}/user/product`, token, setProducts);
+              setNewProduct(false)
             } else if (data.type === 'delete') {
               setProducts(prevProducts => 
                 prevProducts.filter(product => product.id !== data.productId)
